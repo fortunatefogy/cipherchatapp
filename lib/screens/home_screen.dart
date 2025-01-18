@@ -1,6 +1,7 @@
 // ignore_for_file: unused_import
 import 'package:cipher/api/apis.dart';
 import 'package:cipher/screens/auth/login_screen.dart';
+import 'package:cipher/widgets/chat_user_card.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
 import 'package:google_sign_in/google_sign_in.dart';
@@ -48,6 +49,13 @@ class _HomeScreenState extends State<HomeScreen> {
         },
         child: Icon(Icons.add, color: Colors.white),
       ),
+      body: ListView.builder(
+          itemCount: 15,
+          padding: EdgeInsets.only(top: 10),
+          physics: BouncingScrollPhysics(),
+          itemBuilder: (context, index) {
+            return const ChatUserCard();
+          }),
     );
   }
 }
