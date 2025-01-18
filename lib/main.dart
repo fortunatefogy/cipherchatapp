@@ -1,4 +1,5 @@
-import 'package:cipher/onboarding_screen.dart';
+// import 'package:cipher/onboarding_screen.dart';
+import 'package:cipher/screens/splash_screen.dart';
 import 'package:flutter/material.dart';
 import 'package:firebase_core/firebase_core.dart';
 import 'firebase_options.dart';
@@ -36,7 +37,7 @@ class MyApp extends StatelessWidget {
           backgroundColor: Color(0xFFF9F4FB),
         ),
       ),
-      home: const OnboardingScreen(),
+      home: SplashScreen(),
     );
   }
 }
