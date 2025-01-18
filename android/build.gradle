@@ -1,0 +1,39 @@
+buildscript {
+    repositories {
+        google()
+        mavenCentral()
+    }
+    dependencies {
+        classpath 'com.android.tools.build:gradle:8.3.0' 
+        classpath 'com.google.gms:google-services:4.3.15'// Add the AGP dependency here
+    }
+}
+
+allprojects {
+    repositories {
+        google()
+        mavenCentral()
+    }
+}
+
+rootProject.buildDir = "../build"
+subprojects {
+    project.buildDir = "${rootProject.buildDir}/${project.name}"
+}
+subprojects {
+    project.evaluationDependsOn(":app")
+}
+
+tasks.register("clean", Delete) {
+    delete rootProject.buildDir
+}
+
+// android {
+//     defaultConfig {
+//         // Specify your app's minimum SDK version
+//         minSdkVersion 21 // or higher if required by your dependencies
+//         targetSdkVersion 33
+//         compileSdkVersion 33
+//     }
+// }
+

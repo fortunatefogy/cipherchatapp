@@ -1,0 +1,9 @@
+Primary
+main=#251d28
+secondary=#F9F4FB
+accent=#0E0D12
+
+Alternative
+main=#F9F4FB
+secondary=#0E0D12
+accent=#251d28
