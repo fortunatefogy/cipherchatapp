@@ -4,6 +4,7 @@ import 'dart:io';
 // import 'dart:math';
 // import 'dart:developer';
 
+import 'package:cipher/api/apis.dart';
 import 'package:cipher/helper/dialogs.dart';
 import 'package:cipher/main.dart';
 import 'package:cipher/screens/home_screen.dart';
@@ -80,7 +81,7 @@ class _LoginScreenState extends State<LoginScreen> {
       );
 
       // Once signed in, return the UserCredential
-      return await FirebaseAuth.instance.signInWithCredential(credential);
+      return await APIs.auth.signInWithCredential(credential);
     } catch (e) {
       print("\nsignInWithGoogle: $e");
       Dialogs.showSnackbar(context, 'something went wrong(Check internet!)');

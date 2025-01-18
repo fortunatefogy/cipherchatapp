@@ -1,4 +1,5 @@
 // ignore_for_file: unused_import
+import 'package:cipher/api/apis.dart';
 import 'package:cipher/screens/auth/login_screen.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
@@ -39,7 +40,7 @@ class _HomeScreenState extends State<HomeScreen> {
       floatingActionButton: FloatingActionButton(
         backgroundColor: Color(0xFF251d28),
         onPressed: () async {
-          await FirebaseAuth.instance.signOut();
+          await APIs.auth.signOut();
           await GoogleSignIn().signOut();
           Navigator.of(context).pushReplacement(
             MaterialPageRoute(builder: (context) => LoginScreen()),

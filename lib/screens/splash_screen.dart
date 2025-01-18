@@ -1,3 +1,4 @@
+import 'package:cipher/api/apis.dart';
 import 'package:cipher/onboarding_screen.dart';
 import 'package:cipher/screens/home_screen.dart';
 import 'package:flutter/material.dart';
@@ -14,9 +15,9 @@ class _SplashScreenState extends State<SplashScreen> {
   void initState() {
     super.initState();
     Timer(Duration(seconds: 2), () {
-      User? user = FirebaseAuth.instance.currentUser;
+      User? user = APIs.auth.currentUser;
       if (user != null) {
-        print('\nUser: ${FirebaseAuth.instance.currentUser}');
+        print('\nUser: ${APIs.auth.currentUser}');
         // User is signed in, navigate to home screen
         Navigator.of(context).pushReplacement(
           MaterialPageRoute(builder: (context) => HomeScreen()),
@@ -40,8 +41,8 @@ class _SplashScreenState extends State<SplashScreen> {
           children: <Widget>[
             Image.asset(
               'assets/icon/icon.png',
-              width: 140.0,
-              height: 140.0,
+              width: 160.0,
+              height: 160.0,
             ),
             SizedBox(height: 20.0),
             Padding(
@@ -49,7 +50,7 @@ class _SplashScreenState extends State<SplashScreen> {
               child: Text(
                 'Cipher',
                 style: TextStyle(
-                  fontSize: 30.0,
+                  fontSize: 40.0,
                   fontWeight: FontWeight.bold,
                   color: const Color.fromARGB(255, 34, 36, 37),
                 ),
