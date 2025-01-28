@@ -1,7 +1,9 @@
+import 'package:cipher/models/chat_user.dart';
 import 'package:flutter/material.dart';
 
 class ChatUserCard extends StatefulWidget {
-  const ChatUserCard({super.key});
+  final ChatUser user;
+  const ChatUserCard({super.key, required this.user});
 
   @override
   State<ChatUserCard> createState() => _ChatUserCardState();
@@ -19,14 +21,17 @@ class _ChatUserCardState extends State<ChatUserCard> {
       ),
       child: InkWell(
         onTap: () {},
-        child: const ListTile(
-          leading: CircleAvatar(
+        child: ListTile(
+          leading: const CircleAvatar(
             radius: 30,
             backgroundImage: AssetImage('assets/images/image1.png'),
           ),
-          title: Text("demo user"),
+          title: Text(
+            widget.user.name,
+            maxLines: 1,
+          ),
           subtitle: Text(
-            "demo message",
+            widget.user.about,
             maxLines: 1,
           ),
           trailing: Text("12:00 PM"),
