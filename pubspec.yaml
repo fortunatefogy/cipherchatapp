@@ -20,6 +20,10 @@ dependencies:
   # for store network image
   cached_network_image: ^3.4.1
 
+  flutter_svg: ^2.0.17
+
+  image_picker: ^1.1.2
+
 dev_dependencies:
   flutter_test:
     sdk: flutter

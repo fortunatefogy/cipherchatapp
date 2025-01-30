@@ -4,6 +4,7 @@ import 'package:cipher/screens/home_screen.dart';
 import 'package:flutter/material.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'dart:async';
+import 'package:flutter/services.dart';
 
 class SplashScreen extends StatefulWidget {
   @override
@@ -14,6 +15,16 @@ class _SplashScreenState extends State<SplashScreen> {
   @override
   void initState() {
     super.initState();
+
+    // Set system UI mode to edge-to-edge
+    SystemChrome.setEnabledSystemUIMode(SystemUiMode.edgeToEdge);
+
+    // Set system navigation bar color to white
+    SystemChrome.setSystemUIOverlayStyle(SystemUiOverlayStyle(
+      systemNavigationBarColor: Color(0xffF9F4FB),
+      systemNavigationBarIconBrightness: Brightness.dark,
+    ));
+
     Timer(Duration(seconds: 2), () {
       User? user = APIs.auth.currentUser;
       if (user != null) {

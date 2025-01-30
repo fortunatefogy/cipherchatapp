@@ -24,15 +24,15 @@ class MyApp extends StatelessWidget {
       title: 'Cipher',
       theme: ThemeData(
         appBarTheme: const AppBarTheme(
-          centerTitle: true,
+          centerTitle: false,
           elevation: 2,
           iconTheme: IconThemeData(
             color: Colors.black,
           ),
           titleTextStyle: TextStyle(
             color: Colors.black,
-            fontWeight: FontWeight.normal,
-            fontSize: 19,
+            fontWeight: FontWeight.bold, // Increased font weight
+            fontSize: 28,
           ),
           backgroundColor: Color(0xFFF9F4FB),
         ),

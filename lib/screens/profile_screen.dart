@@ -12,7 +12,9 @@ import 'package:cipher/widgets/chat_user_card.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
+import 'package:flutter_svg/svg.dart';
 import 'package:google_sign_in/google_sign_in.dart';
+import 'package:image_picker/image_picker.dart';
 
 class ProfileScreen extends StatefulWidget {
   final ChatUser user;
@@ -106,7 +108,9 @@ class _ProfileScreenState extends State<ProfileScreen> {
                         bottom: 0,
                         right: 0,
                         child: MaterialButton(
-                            onPressed: () {},
+                            onPressed: () {
+                              _showBottomSheet(context);
+                            },
                             shape: const CircleBorder(),
                             color: Colors.white,
                             child: Icon(Icons.edit)),
@@ -187,6 +191,85 @@ class _ProfileScreenState extends State<ProfileScreen> {
           ),
         ),
       ),
+    );
+  }
+
+  void _showBottomSheet(BuildContext context) {
+    showModalBottomSheet(
+      context: context,
+      shape: RoundedRectangleBorder(
+        borderRadius: BorderRadius.vertical(top: Radius.circular(20)),
+      ),
+      builder: (context) {
+        return Container(
+          height: MediaQuery.of(context).size.height * 0.2,
+          padding: EdgeInsets.all(16),
+          child: Row(
+            mainAxisAlignment: MainAxisAlignment.spaceEvenly,
+            children: [
+              Text(
+                "Pick Profile Picture",
+                style: TextStyle(fontSize: 20, fontWeight: FontWeight.bold),
+              ),
+              Column(
+                mainAxisAlignment: MainAxisAlignment.center,
+                children: [
+                  ElevatedButton(
+                    style: ElevatedButton.styleFrom(
+                      shape: CircleBorder(), backgroundColor: Colors.white,
+                      padding: EdgeInsets.all(10), // Background color
+                      elevation: 5,
+                    ),
+                    onPressed: () {
+                      Navigator.pop(context);
+                    },
+                    child: SvgPicture.asset(
+                      'assets/icon/camera.svg', // SVG file
+                      width: 60, // Adjust size
+                      height: 60,
+                    ),
+                  ),
+                  const Text(
+                    'Camera',
+                    style: TextStyle(fontSize: 16, fontWeight: FontWeight.bold),
+                  ),
+                ],
+              ),
+              Column(
+                mainAxisAlignment: MainAxisAlignment.center,
+                children: [
+                  ElevatedButton(
+                    style: ElevatedButton.styleFrom(
+                      shape: CircleBorder(), backgroundColor: Colors.white,
+                      padding: EdgeInsets.all(10), // Background color
+                      elevation: 5,
+                    ),
+                    onPressed: () async {
+                      final ImagePicker picker = ImagePicker();
+// Pick an image.
+                      final XFile? image =
+                          await picker.pickImage(source: ImageSource.gallery);
+                          if(image!=null){
+                            print('Image Path: ${image.path} -- MimeType: ${image.mimeType}');
+                          }
+                      Navigator.pop(context);
+                    },
+                    child: SvgPicture.asset(
+                      'assets/icon/gallery.svg', // SVG file
+                      width: 60,
+                      height: 60,
+                    ),
+                  ),
+                  const Text(
+                    'Gallery',
+                    style: TextStyle(fontSize: 16, fontWeight: FontWeight.bold),
+                  ),
+                ],
+              ),
+            ],
+          ),
+        );
+      },
     );
   }
 }
