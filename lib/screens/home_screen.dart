@@ -5,6 +5,7 @@ import 'dart:math';
 import 'package:cipher/api/apis.dart';
 import 'package:cipher/models/chat_user.dart';
 import 'package:cipher/screens/auth/login_screen.dart';
+import 'package:cipher/screens/profile_screen.dart';
 import 'package:cipher/widgets/chat_user_card.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
@@ -39,7 +40,11 @@ class _HomeScreenState extends State<HomeScreen> {
             icon: Icon(Icons.search),
           ),
           IconButton(
-            onPressed: () {},
+            onPressed: () {
+              Navigator.of(context).push(
+                MaterialPageRoute(builder: (context) => ProfileScreen(user: list[0],)),
+              );
+            },
             icon: Icon(Icons.more_vert),
           ),
         ],
