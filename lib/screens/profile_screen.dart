@@ -1,5 +1,6 @@
 // ignore_for_file: unused_import
 import 'dart:convert';
+import 'dart:io';
 import 'dart:math';
 
 import 'package:cached_network_image/cached_network_image.dart';
@@ -34,6 +35,7 @@ class _ProfileScreenState extends State<ProfileScreen> {
   }
 
   final _formKey = GlobalKey<FormState>();
+  String? _image;
 
   @override
   Widget build(BuildContext context) {
@@ -86,24 +88,34 @@ class _ProfileScreenState extends State<ProfileScreen> {
                   ),
                   Stack(
                     children: [
-                      ClipRRect(
-                        borderRadius: BorderRadius.circular(mq.height * .1),
-                        child: CachedNetworkImage(
-                          width: mq.height * .2,
-                          height: mq.height * .2,
-                          fit: BoxFit.fill,
-                          imageUrl: widget.user.image,
-                          placeholder: (context, url) => const CircleAvatar(
-                            backgroundColor: Colors.white,
-                            child: Icon(CupertinoIcons.person),
-                          ),
-                          errorWidget: (context, url, error) =>
-                              const CircleAvatar(
-                            backgroundColor: Colors.white,
-                            child: Icon(CupertinoIcons.person),
-                          ),
-                        ),
-                      ),
+                      _image != null
+                          ? ClipRRect(
+                              borderRadius:
+                                  BorderRadius.circular(mq.height * .1),
+                              child: Image.file(File(_image!),
+                                  width: mq.height * .2,
+                                  height: mq.height * .2,
+                                  fit: BoxFit.cover))
+                          : ClipRRect(
+                              borderRadius:
+                                  BorderRadius.circular(mq.height * .1),
+                              child: CachedNetworkImage(
+                                width: mq.height * .2,
+                                height: mq.height * .2,
+                                fit: BoxFit.cover,
+                                imageUrl: widget.user.image,
+                                placeholder: (context, url) =>
+                                    const CircleAvatar(
+                                  backgroundColor: Colors.white,
+                                  child: Icon(CupertinoIcons.person),
+                                ),
+                                errorWidget: (context, url, error) =>
+                                    const CircleAvatar(
+                                  backgroundColor: Colors.white,
+                                  child: Icon(CupertinoIcons.person),
+                                ),
+                              ),
+                            ),
                       Positioned(
                         bottom: 0,
                         right: 0,
@@ -220,8 +232,18 @@ class _ProfileScreenState extends State<ProfileScreen> {
                       padding: EdgeInsets.all(10), // Background color
                       elevation: 5,
                     ),
-                    onPressed: () {
-                      Navigator.pop(context);
+                    onPressed: () async {
+                      final ImagePicker picker = ImagePicker();
+// Pick an image.
+                      final XFile? image =
+                          await picker.pickImage(source: ImageSource.camera);
+                      if (image != null) {
+                        print('Image Path: ${image.path}');
+                        setState(() {
+                          _image = image.path;
+                        });
+                        Navigator.pop(context);
+                      }
                     },
                     child: SvgPicture.asset(
                       'assets/icon/camera.svg', // SVG file
@@ -249,10 +271,14 @@ class _ProfileScreenState extends State<ProfileScreen> {
 // Pick an image.
                       final XFile? image =
                           await picker.pickImage(source: ImageSource.gallery);
-                          if(image!=null){
-                            print('Image Path: ${image.path} -- MimeType: ${image.mimeType}');
-                          }
-                      Navigator.pop(context);
+                      if (image != null) {
+                        print(
+                            'Image Path: ${image.path} -- MimeType: ${image.mimeType}');
+                        setState(() {
+                          _image = image.path;
+                        });
+                        Navigator.pop(context);
+                      }
                     },
                     child: SvgPicture.asset(
                       'assets/icon/gallery.svg', // SVG file

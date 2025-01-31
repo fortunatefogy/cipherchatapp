@@ -23,6 +23,7 @@ class _HomeScreenState extends State<HomeScreen> {
   List<ChatUser> _list = [];
   final List<ChatUser> _searchList = [];
   bool _isSearching = false;
+  final TextEditingController _searchController = TextEditingController();
 
   void initState() {
     super.initState();
@@ -109,19 +110,30 @@ class _HomeScreenState extends State<HomeScreen> {
               Padding(
                 padding: const EdgeInsets.all(8.0),
                 child: TextField(
-                  style: TextStyle(color: const Color.fromARGB(255, 0, 0, 0)),
+                  controller: _searchController,
+                  style: TextStyle(color: Colors.black),
                   decoration: InputDecoration(
                     hintText: 'Search User',
-                    hintStyle:
-                        TextStyle(color: const Color.fromARGB(255, 0, 0, 0)),
+                    hintStyle: TextStyle(color: Colors.black),
                     filled: true,
-                    fillColor: const Color.fromARGB(176, 82, 82, 82),
+                    fillColor: Color.fromARGB(176, 82, 82, 82),
                     border: OutlineInputBorder(
                       borderRadius: BorderRadius.circular(30),
                       borderSide: BorderSide.none,
                     ),
-                    prefixIcon: Icon(Icons.search,
-                        color: const Color.fromARGB(255, 0, 0, 0)),
+                    prefixIcon: Icon(Icons.search, color: Colors.black),
+                    suffixIcon: _isSearching
+                        ? IconButton(
+                            icon: Icon(Icons.cancel, color: Colors.black),
+                            onPressed: () {
+                              setState(() {
+                              _searchController.clear();
+                              _searchList.clear();
+                              _isSearching = false;
+                              });
+                            },
+                          )
+                        : null,
                   ),
                   onChanged: (val) {
                     _searchList.clear();
