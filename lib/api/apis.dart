@@ -5,7 +5,7 @@ import 'package:firebase_auth/firebase_auth.dart';
 class APIs {
   static FirebaseAuth auth = FirebaseAuth.instance;
 
-  // for storeing self info
+  // for storing self info
   static late ChatUser me;
 
   static FirebaseFirestore firestore = FirebaseFirestore.instance;
@@ -18,11 +18,10 @@ class APIs {
 
   static Future<void> getSelfInfo() async {
     await firestore.collection('users').doc(user.uid).get().then((user) async {
-      if(user.exists) {
+      if (user.exists) {
         me = ChatUser.fromJson(user.data()!);
-      }else{
-        await createUser().then((value)=>getSelfInfo());
-
+      } else {
+        await createUser().then((value) => getSelfInfo());
       }
     });
   }
@@ -31,15 +30,17 @@ class APIs {
   static Future<void> createUser() async {
     final time = DateTime.now().millisecondsSinceEpoch.toString();
     final chatUser = ChatUser(
-        id: user.uid,
-        name: user.displayName.toString(),
-        email: user.email.toString(),
-        image: user.photoURL.toString(),
-        about: 'Hey there! I am using Cipher',
-        createdAt: time,
-        lastActive: time,
-        isOnline: false,
-        pushToken: '');
+      id: user.uid,
+      name: user.displayName.toString(),
+      email: user.email.toString(),
+      image: user.photoURL.toString(),
+      about: 'Hey there! I am using Cipher',
+      createdAt: time,
+      lastActive: time,
+      isOnline: false,
+      pushToken: '',
+      // cloudinaryImageUrl: '', // Initialize cloudinaryImageUrl as an empty string
+    );
     return await firestore
         .collection('users')
         .doc(user.uid)
@@ -54,12 +55,23 @@ class APIs {
         .snapshots();
   }
 
-   static Future<void> updateUserInfo() async {
+  // Update user info except for image
+  static Future<void> updateUserInfo() async {
     await firestore.collection('users').doc(user.uid).update({
       'name': me.name,
       'about': me.about,
-      // 'image': me.image,
     });
   }
-}
 
+  // Update user image in Firebase Firestore
+  static Future<void> updateUserImage(String imageUrl) async {
+    try {
+      await firestore.collection('users').doc(user.uid).update({
+        'image': imageUrl, // Update the image field with the new image URL
+      });
+    } catch (e) {
+      print('Error updating user image: $e');
+    }
+  }
+
+}

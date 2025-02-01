@@ -1,21 +1,16 @@
-// ignore_for_file: unused_import
 import 'dart:convert';
 import 'dart:io';
-import 'dart:math';
-
-import 'package:cached_network_image/cached_network_image.dart';
 import 'package:cipher/api/apis.dart';
 import 'package:cipher/helper/dialogs.dart';
-import 'package:cipher/main.dart';
 import 'package:cipher/models/chat_user.dart';
 import 'package:cipher/screens/auth/login_screen.dart';
-import 'package:cipher/widgets/chat_user_card.dart';
-import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_svg/svg.dart';
 import 'package:google_sign_in/google_sign_in.dart';
 import 'package:image_picker/image_picker.dart';
+import 'package:http/http.dart' as http;
+import 'package:cached_network_image/cached_network_image.dart';
 
 class ProfileScreen extends StatefulWidget {
   final ChatUser user;
@@ -27,6 +22,7 @@ class ProfileScreen extends StatefulWidget {
 
 class _ProfileScreenState extends State<ProfileScreen> {
   late Size mq;
+  String? _image;
 
   @override
   void didChangeDependencies() {
@@ -35,10 +31,44 @@ class _ProfileScreenState extends State<ProfileScreen> {
   }
 
   final _formKey = GlobalKey<FormState>();
-  String? _image;
+
+  Future<void> _uploadImageToCloudinary(File imageFile) async {
+    final cloudinaryUrl =
+        'https://api.cloudinary.com/v1_1/dshlsnsyt/image/upload';
+    final uploadPreset = 'cipher';
+
+    final request = http.MultipartRequest('POST', Uri.parse(cloudinaryUrl))
+      ..fields['upload_preset'] = uploadPreset
+      ..files.add(await http.MultipartFile.fromPath('file', imageFile.path));
+
+    final response = await request.send();
+
+    if (response.statusCode == 200) {
+      final responseData = await response.stream.bytesToString();
+      final jsonResponse = json.decode(responseData);
+      final imageUrl = jsonResponse['secure_url'];
+
+      print('Cloudinary Image URL: $imageUrl'); // Debug output
+
+      await APIs.updateUserImage(imageUrl).then((value) {
+        setState(() {
+          widget.user.image = imageUrl; // Update the image field
+          _image = null; // Reset the local image path
+        });
+        print(
+            'Updated Image URL: ${widget.user.image}'); // Print updated image URL
+        Dialogs.showSnackbar(context, 'Profile Image Updated');
+      });
+    } else {
+      Dialogs.showSnackbar(context, 'Image Upload Failed');
+    }
+  }
 
   @override
   Widget build(BuildContext context) {
+    print(
+        'Current Profile Picture URL: ${widget.user.image}'); // Print current profile picture URL
+
     return GestureDetector(
       onTap: () {
         FocusScope.of(context).unfocus();
@@ -61,12 +91,10 @@ class _ProfileScreenState extends State<ProfileScreen> {
                   (value) async {
                     await GoogleSignIn().signOut().then((value) {
                       Navigator.pop(context);
-
                       Navigator.pop(context);
                     });
                   },
                 );
-                ;
                 Navigator.pushReplacement(
                   context,
                   MaterialPageRoute(builder: (context) => const LoginScreen()),
@@ -100,6 +128,7 @@ class _ProfileScreenState extends State<ProfileScreen> {
                               borderRadius:
                                   BorderRadius.circular(mq.height * .1),
                               child: CachedNetworkImage(
+                                key: ValueKey(widget.user.image),
                                 width: mq.height * .2,
                                 height: mq.height * .2,
                                 fit: BoxFit.cover,
@@ -180,7 +209,6 @@ class _ProfileScreenState extends State<ProfileScreen> {
                           Dialogs.showSnackbar(context, 'Profile Updated');
                         });
                       }
-                      // Add your update logic here
                     },
                     style: ElevatedButton.styleFrom(
                       backgroundColor: Colors.black, // Background color
@@ -228,21 +256,21 @@ class _ProfileScreenState extends State<ProfileScreen> {
                 children: [
                   ElevatedButton(
                     style: ElevatedButton.styleFrom(
-                      shape: CircleBorder(), backgroundColor: Colors.white,
+                      shape: CircleBorder(),
+                      backgroundColor: Colors.white,
                       padding: EdgeInsets.all(10), // Background color
                       elevation: 5,
                     ),
                     onPressed: () async {
                       final ImagePicker picker = ImagePicker();
-// Pick an image.
                       final XFile? image =
                           await picker.pickImage(source: ImageSource.camera);
                       if (image != null) {
-                        print('Image Path: ${image.path}');
                         setState(() {
                           _image = image.path;
                         });
                         Navigator.pop(context);
+                        await _uploadImageToCloudinary(File(image.path));
                       }
                     },
                     child: SvgPicture.asset(
@@ -262,22 +290,22 @@ class _ProfileScreenState extends State<ProfileScreen> {
                 children: [
                   ElevatedButton(
                     style: ElevatedButton.styleFrom(
-                      shape: CircleBorder(), backgroundColor: Colors.white,
+                      shape: CircleBorder(),
+                      backgroundColor: Colors.white,
                       padding: EdgeInsets.all(10), // Background color
                       elevation: 5,
                     ),
                     onPressed: () async {
+                      print('Image URL: ${widget.user.image}');
                       final ImagePicker picker = ImagePicker();
-// Pick an image.
                       final XFile? image =
                           await picker.pickImage(source: ImageSource.gallery);
                       if (image != null) {
-                        print(
-                            'Image Path: ${image.path} -- MimeType: ${image.mimeType}');
                         setState(() {
                           _image = image.path;
                         });
                         Navigator.pop(context);
+                        await _uploadImageToCloudinary(File(image.path));
                       }
                     },
                     child: SvgPicture.asset(

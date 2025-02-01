@@ -9,7 +9,9 @@ class ChatUser {
     required this.pushToken,
     required this.email,
     required this.image,
+// Added the cloudinaryImageUrl field
   });
+
   late String about;
   late String name;
   late String createdAt;
@@ -19,6 +21,7 @@ class ChatUser {
   late String pushToken;
   late String email;
   late String image;
+ // Added cloudinaryImageUrl field
 
   ChatUser.fromJson(Map<String, dynamic> json) {
     about = json['about'] ?? '';
@@ -26,10 +29,11 @@ class ChatUser {
     createdAt = json['created_at'] ?? '';
     id = json['id'] ?? '';
     lastActive = json['last_active'] ?? '';
-    isOnline = json['is_online'] ?? '';
+    isOnline = json['is_online'] ?? false;
     pushToken = json['push_token'] ?? '';
     email = json['email'] ?? '';
-    image = json['image '] ?? '';
+    image = json['image'] ?? ''; // Fixed the space in the key name
+     // Added cloudinaryImageUrl initialization
   }
 
   Map<String, dynamic> toJson() {
@@ -42,7 +46,7 @@ class ChatUser {
     data['is_online'] = isOnline;
     data['push_token'] = pushToken;
     data['email'] = email;
-    data['image '] = image;
+    data['image'] = image; // Fixed the space in the key name // Added cloudinaryImageUrl to JSON
     return data;
   }
 }
