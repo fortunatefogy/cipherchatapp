@@ -54,9 +54,7 @@ class _ProfileScreenState extends State<ProfileScreen> {
         setState(() {
           widget.user.image = imageUrl; // Update the image field
           _image = null; // Reset the local image path
-        });
-        print(
-            'Updated Image URL: ${widget.user.image}'); // Print updated image URL
+        }); // Print updated image URL
         Dialogs.showSnackbar(context, 'Profile Image Updated');
       });
     } else {
@@ -124,24 +122,69 @@ class _ProfileScreenState extends State<ProfileScreen> {
                                   width: mq.height * .2,
                                   height: mq.height * .2,
                                   fit: BoxFit.cover))
-                          : ClipRRect(
-                              borderRadius:
-                                  BorderRadius.circular(mq.height * .1),
-                              child: CachedNetworkImage(
-                                key: ValueKey(widget.user.image),
-                                width: mq.height * .2,
-                                height: mq.height * .2,
-                                fit: BoxFit.cover,
-                                imageUrl: widget.user.image,
-                                placeholder: (context, url) =>
-                                    const CircleAvatar(
-                                  backgroundColor: Colors.white,
-                                  child: Icon(CupertinoIcons.person),
-                                ),
-                                errorWidget: (context, url, error) =>
-                                    const CircleAvatar(
-                                  backgroundColor: Colors.white,
-                                  child: Icon(CupertinoIcons.person),
+                          : GestureDetector(
+                              onTap: () {
+                                showDialog(
+                                  context: context,
+                                  builder: (context) => Dialog(
+                                    shape: RoundedRectangleBorder(
+                                      borderRadius: BorderRadius.circular(20),
+                                    ),
+                                    child: Stack(
+                                      children: [
+                                        ClipRRect(
+                                          borderRadius:
+                                              BorderRadius.circular(20),
+                                          child: CachedNetworkImage(
+                                            imageUrl: widget.user.image,
+                                            fit: BoxFit.cover,
+                                            placeholder: (context, url) =>
+                                                const Center(
+                                                    child:
+                                                        CircularProgressIndicator()),
+                                            errorWidget:
+                                                (context, url, error) =>
+                                                    const Icon(Icons.error),
+                                          ),
+                                        ),
+                                        Positioned(
+                                          top: 10,
+                                          right: 10,
+                                          child: CircleAvatar(
+                                            backgroundColor: Colors.white,
+                                            child: IconButton(
+                                              icon: const Icon(Icons.close,
+                                                  color: Colors.black),
+                                              onPressed: () {
+                                                Navigator.of(context).pop();
+                                              },
+                                            ),
+                                          ),
+                                        ),
+                                      ],
+                                    ),
+                                  ),
+                                );
+                              },
+                              child: ClipRRect(
+                                borderRadius:
+                                    BorderRadius.circular(mq.height * .1),
+                                child: CachedNetworkImage(
+                                  key: ValueKey(widget.user.image),
+                                  width: mq.height * .2,
+                                  height: mq.height * .2,
+                                  fit: BoxFit.cover,
+                                  imageUrl: widget.user.image,
+                                  placeholder: (context, url) =>
+                                      const CircleAvatar(
+                                    backgroundColor: Colors.white,
+                                    child: Icon(CupertinoIcons.person),
+                                  ),
+                                  errorWidget: (context, url, error) =>
+                                      const CircleAvatar(
+                                    backgroundColor: Colors.white,
+                                    child: Icon(CupertinoIcons.person),
+                                  ),
                                 ),
                               ),
                             ),

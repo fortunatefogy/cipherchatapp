@@ -1,5 +1,6 @@
 import 'package:cached_network_image/cached_network_image.dart';
 import 'package:cipher/models/chat_user.dart';
+import 'package:cipher/screens/chat_screen.dart';
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 
@@ -30,28 +31,69 @@ class _ChatUserCardState extends State<ChatUserCard> {
         borderRadius: BorderRadius.circular(15),
       ),
       child: InkWell(
-        onTap: () {},
+        onTap: () {
+          Navigator.push(context,
+              MaterialPageRoute(builder: (_) => ChatScreen(user: widget.user)));
+        },
         child: ListTile(
           leading: ClipRRect(
             borderRadius: BorderRadius.circular(mq.height * .3),
-            child: CachedNetworkImage(
-              width: mq.height * .055,
-              height: mq.height * .055,
-              imageUrl: widget.user.image,
-              placeholder: (context, url) => const CircleAvatar(
-                backgroundColor: Colors.white,
-                child: Icon(CupertinoIcons.person),
+            child: GestureDetector(
+              onTap: () {
+                showDialog(
+                  context: context,
+                  builder: (BuildContext context) {
+                    return Dialog(
+                      shape: RoundedRectangleBorder(
+                        borderRadius: BorderRadius.circular(20),
+                      ),
+                      child: Stack(
+                        children: [
+                          ClipRRect(
+                            borderRadius: BorderRadius.circular(20),
+                            child: Image.network(widget.user.image),
+                          ),
+                          Positioned(
+                            top: 8,
+                            right: 8,
+                            child: Container(
+                              decoration: BoxDecoration(
+                                color: const Color.fromARGB(255, 255, 255, 255),
+                                shape: BoxShape.circle,
+                              ),
+                              constraints: BoxConstraints(
+                                maxWidth: 40,
+                                maxHeight: 40,
+                              ),
+                              child: IconButton(
+                                icon: Icon(Icons.close,
+                                    color: const Color.fromARGB(255, 0, 0, 0)),
+                                onPressed: () {
+                                  Navigator.of(context).pop();
+                                },
+                              ),
+                            ),
+                          ),
+                        ],
+                      ),
+                    );
+                  },
+                );
+              },
+              child: CachedNetworkImage(
+                fit: BoxFit.cover,
+                width: mq.height * .055,
+                height: mq.height * .055,
+                imageUrl: widget.user.image,
+                placeholder: (context, url) => const CircleAvatar(
+                  backgroundColor: Colors.white,
+                  child: Icon(CupertinoIcons.person),
+                ),
+                errorWidget: (context, url, error) => const CircleAvatar(
+                  backgroundColor: Colors.white,
+                  child: Icon(CupertinoIcons.person),
+                ),
               ),
-              errorWidget: (context, url, error) => const CircleAvatar(
-                backgroundColor: Colors.white,
-                child: Icon(CupertinoIcons.person),
-              ),
-              // placeholder: (context, url) => const CircleAvatar(
-              //   child: Icon(CupertinoIcons.person),
-              // ),
-              // errorWidget: (context, url, error) => const CircleAvatar(
-              //   child: Icon(CupertinoIcons.person),
-              // ),
             ),
           ),
           title: Text(

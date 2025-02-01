@@ -22,6 +22,7 @@ class _SplashScreenState extends State<SplashScreen> {
     // Set system navigation bar color to white
     SystemChrome.setSystemUIOverlayStyle(SystemUiOverlayStyle(
       systemNavigationBarColor: Color(0xffF9F4FB),
+      statusBarColor: Color(0xFFF9F4FB),
       systemNavigationBarIconBrightness: Brightness.dark,
     ));
 
