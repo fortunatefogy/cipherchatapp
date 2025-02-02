@@ -73,5 +73,11 @@ class APIs {
       print('Error updating user image: $e');
     }
   }
-
+   
+  //  for getting all messages
+   static Stream<QuerySnapshot<Map<String, dynamic>>> getAllMessages() {
+    return firestore
+        .collection('messages')
+        .snapshots();
+  }
 }
