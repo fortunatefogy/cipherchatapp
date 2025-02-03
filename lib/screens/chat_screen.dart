@@ -2,6 +2,8 @@ import 'dart:convert';
 
 import 'package:cipher/api/apis.dart';
 import 'package:cipher/models/chat_user.dart';
+import 'package:cipher/models/message.dart';
+import 'package:cipher/widgets/message_card.dart';
 import 'package:flutter/material.dart';
 
 class ChatScreen extends StatefulWidget {
@@ -13,6 +15,8 @@ class ChatScreen extends StatefulWidget {
 }
 
 class _ChatScreenState extends State<ChatScreen> {
+  List<Message> _list = [];
+
   @override
   Widget build(BuildContext context) {
     return Scaffold(
@@ -101,6 +105,22 @@ class _ChatScreenState extends State<ChatScreen> {
                 //         ?.map((e) => ChatUser.fromJson(e.data()))
                 //         .toList() ??
                 //     [];
+                _list.clear();
+
+                _list.add(Message(
+                    toId: 'xys',
+                    fromId: APIs.user.uid,
+                    msg: 'Hello',
+                    read: 'false',
+                    sent: '12:00',
+                    type: Type.text));
+                _list.add(Message(
+                    toId: APIs.user.uid,
+                    fromId: 'xys',
+                    msg: 'Hi',
+                    read: 'false',
+                    sent: '12:00',
+                    type: Type.text));
 
                 return _list.isNotEmpty
                     ? ListView.builder(
@@ -108,7 +128,9 @@ class _ChatScreenState extends State<ChatScreen> {
                         padding: const EdgeInsets.only(top: 10),
                         physics: const BouncingScrollPhysics(),
                         itemBuilder: (context, index) {
-                          return Text('Message: ${_list[index]}');
+                          return MessageCard(
+                            message: _list[index],
+                          );
                         },
                       )
                     : const Center(
