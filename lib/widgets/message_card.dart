@@ -1,5 +1,5 @@
 import 'package:cipher/api/apis.dart';
-import 'package:cipher/main.dart';
+
 import 'package:cipher/models/message.dart';
 import 'package:flutter/material.dart';
 
@@ -49,8 +49,7 @@ class _MessageCardState extends State<MessageCard> {
                     Padding(
                       padding: const EdgeInsets.only(left: 15),
                       child: Text(
-                        widget.message.msg +
-                            "mmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmm",
+                        widget.message.msg,
                         style: TextStyle(
                           color: Colors.black,
                           fontSize: 16,

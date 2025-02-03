@@ -1,4 +1,5 @@
 import 'package:cipher/models/chat_user.dart';
+import 'package:cipher/models/message.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 
@@ -73,11 +74,29 @@ class APIs {
       print('Error updating user image: $e');
     }
   }
-   
+
+  static String getConversationID(String id) => user.uid.hashCode <= id.hashCode
+      ? '${user.uid}_$id'
+      : '${id}_${user.uid}';
   //  for getting all messages
-   static Stream<QuerySnapshot<Map<String, dynamic>>> getAllMessages() {
+  static Stream<QuerySnapshot<Map<String, dynamic>>> getAllMessages(
+      ChatUser user) {
     return firestore
-        .collection('messages')
+        .collection('chats/${getConversationID(user.id)}/messages/')
         .snapshots();
+  }
+
+  static Future<void> sendMessage(ChatUser chatUser, String msg) async {
+    final time=DateTime.now().microsecondsSinceEpoch.toString();
+    final Message message = Message(
+      toId: chatUser.id,
+      fromId: user.uid,
+      msg: msg,
+      type: Type.text,
+      read: '',
+      sent: time,
+    );
+    final ref= firestore.collection('chats/${getConversationID(chatUser.id)}/messages/');
+    await ref.doc(time).set(message.toJson());
   }
 }

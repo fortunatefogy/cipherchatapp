@@ -1,5 +1,3 @@
-import 'dart:convert';
-
 import 'package:cipher/api/apis.dart';
 import 'package:cipher/models/chat_user.dart';
 import 'package:cipher/models/message.dart';
@@ -16,6 +14,8 @@ class ChatScreen extends StatefulWidget {
 
 class _ChatScreenState extends State<ChatScreen> {
   List<Message> _list = [];
+  // for handling text input
+  final _textController = TextEditingController();
 
   @override
   Widget build(BuildContext context) {
@@ -90,37 +90,16 @@ class _ChatScreenState extends State<ChatScreen> {
         children: [
           Expanded(
             child: StreamBuilder(
-              stream: APIs.getAllMessages(),
+              stream: APIs.getAllMessages(widget.user),
               builder: (context, snapshot) {
                 if (snapshot.connectionState == ConnectionState.waiting ||
                     snapshot.connectionState == ConnectionState.none) {
                   return const Center(child: CircularProgressIndicator());
                 }
 
-                final _list = [];
-
                 final data = snapshot.data?.docs;
-                print('Data: ${jsonEncode(data![0].data())}');
-                // _list = data
-                //         ?.map((e) => ChatUser.fromJson(e.data()))
-                //         .toList() ??
-                //     [];
-                _list.clear();
-
-                _list.add(Message(
-                    toId: 'xys',
-                    fromId: APIs.user.uid,
-                    msg: 'Hello',
-                    read: 'false',
-                    sent: '12:00',
-                    type: Type.text));
-                _list.add(Message(
-                    toId: APIs.user.uid,
-                    fromId: 'xys',
-                    msg: 'Hi',
-                    read: 'false',
-                    sent: '12:00',
-                    type: Type.text));
+                _list =
+                    data?.map((e) => Message.fromJson(e.data())).toList() ?? [];
 
                 return _list.isNotEmpty
                     ? ListView.builder(
@@ -143,14 +122,14 @@ class _ChatScreenState extends State<ChatScreen> {
               },
             ),
           ),
-          _chatInput()
+          _chatInput(_textController, widget.user)
         ],
       ),
     );
   }
 }
 
-Widget _chatInput() {
+Widget _chatInput(TextEditingController textController, ChatUser user) {
   return Padding(
     padding: EdgeInsets.symmetric(vertical: 10, horizontal: 7),
     child: Row(
@@ -171,14 +150,12 @@ Widget _chatInput() {
                 ),
                 Expanded(
                   child: TextField(
+                    controller: textController,
                     keyboardType: TextInputType.multiline,
                     maxLines: null,
                     decoration: InputDecoration(
                       border: InputBorder.none,
                       hintText: 'Message',
-                      // border: OutlineInputBorder(
-                      //   borderRadius: BorderRadius.circular(50),
-                      // ),
                     ),
                   ),
                 ),
@@ -202,7 +179,12 @@ Widget _chatInput() {
           ),
         ),
         MaterialButton(
-            onPressed: () {},
+            onPressed: () {
+              if (textController.text.isNotEmpty) {
+                APIs.sendMessage(user, textController.text);
+                textController.clear();
+              }
+            },
             minWidth: 0,
             color: Colors.grey.shade300,
             padding:
