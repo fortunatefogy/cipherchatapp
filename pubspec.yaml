@@ -29,6 +29,7 @@ dependencies:
   dio: ^5.8.0+1
   encrypt: ^5.0.3
   saver_gallery: ^4.0.1
+  flutter_dotenv: ^5.2.1
 
 dev_dependencies:
   flutter_test:
@@ -41,6 +42,7 @@ flutter:
   assets:
     - assets/images/
     - assets/icon/
+    - .env
   #   - images/a_dot_ham.jpeg
 
 

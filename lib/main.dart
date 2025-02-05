@@ -2,11 +2,13 @@
 import 'package:cipher/screens/splash_screen.dart';
 import 'package:flutter/material.dart';
 import 'package:firebase_core/firebase_core.dart';
+import 'package:flutter_dotenv/flutter_dotenv.dart';
 import 'firebase_options.dart';
 
 late Size mq;
 
 void main() async {
+  await dotenv.load();
   WidgetsFlutterBinding.ensureInitialized(); // Ensures proper initialization
   await Firebase.initializeApp(
       options: DefaultFirebaseOptions

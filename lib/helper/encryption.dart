@@ -1,8 +1,10 @@
 import 'package:encrypt/encrypt.dart';
+import 'package:flutter_dotenv/flutter_dotenv.dart';
 
 class EncryptionUtil {
-  static final Key _key = Key.fromUtf8('1234567890123456'); // 16-byte key
-  static final IV _iv = IV.fromUtf8('1234567890123456'); // 16-byte IV
+  // Fetch the key and IV from the environment file
+  static final Key _key = Key.fromUtf8(dotenv.env['ENCRYPTION_KEY'] ?? 'default_key123456'); // Default value if not set
+  static final IV _iv = IV.fromUtf8(dotenv.env['ENCRYPTION_IV'] ?? 'default_iv123456'); // Default value if not set
   static final Encrypter _encrypter = Encrypter(AES(_key, mode: AESMode.cbc));
 
   static String encrypt(String text) {
