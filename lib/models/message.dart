@@ -1,3 +1,5 @@
+import 'package:cipher/helper/encryption.dart';
+
 class Message {
   Message({
     required this.msg,
@@ -7,6 +9,7 @@ class Message {
     required this.fromId,
     required this.sent,
   });
+
   late final String msg;
   late final String toId;
   late final String read;
@@ -15,7 +18,7 @@ class Message {
   late final String sent;
 
   Message.fromJson(Map<String, dynamic> json) {
-    msg = json['msg'].toString();
+    msg = EncryptionUtil.decrypt(json['msg'].toString()); // Decrypt message
     toId = json['toId'].toString();
     read = json['read'].toString();
     type = json['type'].toString() == Type.image.name ? Type.image : Type.text;
@@ -34,4 +37,5 @@ class Message {
     return data;
   }
 }
-enum Type{text,image}
+
+enum Type { text, image }

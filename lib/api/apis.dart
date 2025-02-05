@@ -1,3 +1,4 @@
+import 'package:cipher/helper/encryption.dart';
 import 'package:cipher/models/chat_user.dart';
 import 'package:cipher/models/message.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
@@ -40,7 +41,6 @@ class APIs {
       lastActive: time,
       isOnline: false,
       pushToken: '',
-      // cloudinaryImageUrl: '', // Initialize cloudinaryImageUrl as an empty string
     );
     return await firestore
         .collection('users')
@@ -68,7 +68,7 @@ class APIs {
   static Future<void> updateUserImage(String imageUrl) async {
     try {
       await firestore.collection('users').doc(user.uid).update({
-        'image': imageUrl, // Update the image field with the new image URL
+        'image': imageUrl,
       });
     } catch (e) {
       print('Error updating user image: $e');
@@ -78,7 +78,8 @@ class APIs {
   static String getConversationID(String id) => user.uid.hashCode <= id.hashCode
       ? '${user.uid}_$id'
       : '${id}_${user.uid}';
-  //  for getting all messages
+
+  // for getting all messages
   static Stream<QuerySnapshot<Map<String, dynamic>>> getAllMessages(
       ChatUser user) {
     return firestore
@@ -86,17 +87,21 @@ class APIs {
         .snapshots();
   }
 
+  // Send encrypted message
   static Future<void> sendMessage(ChatUser chatUser, String msg) async {
-    final time=DateTime.now().microsecondsSinceEpoch.toString();
+    final time = DateTime.now().microsecondsSinceEpoch.toString();
+    final encryptedMsg = EncryptionUtil.encrypt(msg); // Encrypt message
+
     final Message message = Message(
       toId: chatUser.id,
       fromId: user.uid,
-      msg: msg,
+      msg: encryptedMsg, // Store encrypted message
       type: Type.text,
       read: '',
       sent: time,
     );
-    final ref= firestore.collection('chats/${getConversationID(chatUser.id)}/messages/');
+    final ref = firestore
+        .collection('chats/${getConversationID(chatUser.id)}/messages/');
     await ref.doc(time).set(message.toJson());
   }
 }
