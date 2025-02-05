@@ -131,7 +131,7 @@ class _ChatScreenState extends State<ChatScreen> {
 
 Widget _chatInput(TextEditingController textController, ChatUser user) {
   return Padding(
-    padding: EdgeInsets.symmetric(vertical: 10, horizontal: 7),
+    padding: EdgeInsets.symmetric(vertical: 20, horizontal: 10),
     child: Row(
       children: [
         Expanded(

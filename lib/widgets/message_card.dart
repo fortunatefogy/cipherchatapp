@@ -1,4 +1,5 @@
 import 'package:cipher/api/apis.dart';
+import 'package:cipher/helper/my_date_util.dart';
 
 import 'package:cipher/models/message.dart';
 import 'package:flutter/material.dart';
@@ -21,12 +22,16 @@ class _MessageCardState extends State<MessageCard> {
 
   // senders message
   Widget _whiteMessage() {
+    if (widget.message.read.isEmpty) {
+      APIs.updateMessageReadStatus(widget.message);
+    }
     return Row(
       children: [
         Flexible(
           child: Container(
             constraints: BoxConstraints(
               maxWidth: MediaQuery.of(context).size.width * 0.75,
+              minWidth: MediaQuery.of(context).size.width * 0.25,
             ),
             margin: EdgeInsets.symmetric(
               vertical: 5,
@@ -65,7 +70,8 @@ class _MessageCardState extends State<MessageCard> {
                   child: Padding(
                     padding: const EdgeInsets.only(left: 15),
                     child: Text(
-                      widget.message.sent,
+                      MyDateUtil.getFormattedTime(
+                          context: context, time: widget.message.sent),
                       style: TextStyle(
                           color: const Color.fromARGB(137, 0, 0, 0),
                           fontSize: 13,
@@ -90,6 +96,7 @@ class _MessageCardState extends State<MessageCard> {
           child: Container(
             constraints: BoxConstraints(
               maxWidth: MediaQuery.of(context).size.width * 0.75,
+              minWidth: MediaQuery.of(context).size.width * 0.25,
             ),
             margin: EdgeInsets.symmetric(
               vertical: 5,
@@ -111,11 +118,14 @@ class _MessageCardState extends State<MessageCard> {
                   children: [
                     Padding(
                       padding: const EdgeInsets.only(right: 15),
-                      child: Text(
-                        widget.message.msg,
-                        style: TextStyle(
-                          color: const Color.fromARGB(255, 255, 255, 255),
-                          fontSize: 16,
+                      child: Padding(
+                        padding: const EdgeInsets.all(8.0),
+                        child: Text(
+                          widget.message.msg,
+                          style: TextStyle(
+                            color: const Color.fromARGB(255, 255, 255, 255),
+                            fontSize: 16,
+                          ),
                         ),
                       ),
                     ),
@@ -128,18 +138,20 @@ class _MessageCardState extends State<MessageCard> {
                   child: Row(
                     children: [
                       Text(
-                        widget.message.sent,
+                        MyDateUtil.getFormattedTime(
+                            context: context, time: widget.message.sent),
                         style: TextStyle(
                           color: const Color.fromARGB(255, 255, 255, 255),
                           fontSize: 13,
                         ),
                       ),
                       SizedBox(width: 4),
-                      Icon(
-                        Icons.done_all,
-                        color: Colors.blue,
-                        size: 16,
-                      ),
+                      if (widget.message.read.isNotEmpty)
+                        Icon(
+                          Icons.done_all,
+                          color: Colors.blue,
+                          size: 16,
+                        ),
                     ],
                   ),
                 ),
