@@ -147,7 +147,7 @@ class _ChatScreenState extends State<ChatScreen> {
                   textEditingController: _textController,
                   config: Config(
                     emojiViewConfig: const EmojiViewConfig(
-                        backgroundColor: Colors.white, emojiSizeMax: 30),
+                        backgroundColor: Colors.white, emojiSizeMax: 26),
                     viewOrderConfig: const ViewOrderConfig(
                       top: EmojiPickerItem.searchBar,
                       middle: EmojiPickerItem.emojiView,
@@ -155,10 +155,10 @@ class _ChatScreenState extends State<ChatScreen> {
                     ),
                     skinToneConfig: const SkinToneConfig(),
                     categoryViewConfig: const CategoryViewConfig(
-                      backgroundColor: Colors.white,
-                      dividerColor: Colors.white,
-                      iconColorSelected: Colors.black,
-                    ),
+                        backgroundColor: Colors.white,
+                        dividerColor: Colors.white,
+                        iconColorSelected: Colors.black,
+                        indicatorColor: Colors.black),
                     bottomActionBarConfig: const BottomActionBarConfig(
                         backgroundColor: Colors.white,
                         buttonColor: Color.fromARGB(255, 172, 172, 172),
@@ -180,7 +180,7 @@ class _ChatScreenState extends State<ChatScreen> {
 
   Widget _chatInput() {
     return Padding(
-      padding: const EdgeInsets.symmetric(vertical: 12, horizontal: 12),
+      padding: const EdgeInsets.only(bottom: 5, left: 12, right: 12),
       child: Row(
         children: [
           Expanded(
