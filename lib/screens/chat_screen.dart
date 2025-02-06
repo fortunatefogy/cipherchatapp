@@ -2,6 +2,7 @@ import 'package:cipher/api/apis.dart';
 import 'package:cipher/models/chat_user.dart';
 import 'package:cipher/models/message.dart';
 import 'package:cipher/widgets/message_card.dart';
+import 'package:emoji_picker_flutter/emoji_picker_flutter.dart';
 import 'package:flutter/material.dart';
 
 class ChatScreen extends StatefulWidget {
@@ -14,8 +15,28 @@ class ChatScreen extends StatefulWidget {
 
 class _ChatScreenState extends State<ChatScreen> {
   List<Message> _list = [];
-  // for handling text input
   final _textController = TextEditingController();
+  bool _showEmoji = false;
+  FocusNode _focusNode = FocusNode();
+
+  @override
+  void initState() {
+    super.initState();
+    _focusNode.addListener(() {
+      if (_focusNode.hasFocus && _showEmoji) {
+        setState(() {
+          _showEmoji = false;
+        });
+      }
+    });
+  }
+
+  @override
+  void dispose() {
+    _textController.dispose();
+    _focusNode.dispose();
+    super.dispose();
+  }
 
   @override
   Widget build(BuildContext context) {
@@ -43,16 +64,16 @@ class _ChatScreenState extends State<ChatScreen> {
                             right: 8,
                             child: Container(
                               decoration: BoxDecoration(
-                                color: const Color.fromARGB(255, 255, 255, 255),
+                                color: Colors.white,
                                 shape: BoxShape.circle,
                               ),
-                              constraints: BoxConstraints(
+                              constraints: const BoxConstraints(
                                 maxWidth: 40,
                                 maxHeight: 40,
                               ),
                               child: IconButton(
-                                icon: Icon(Icons.close,
-                                    color: const Color.fromARGB(255, 0, 0, 0)),
+                                icon: const Icon(Icons.close,
+                                    color: Colors.black),
                                 onPressed: () {
                                   Navigator.of(context).pop();
                                 },
@@ -69,18 +90,13 @@ class _ChatScreenState extends State<ChatScreen> {
                 backgroundImage: NetworkImage(widget.user.image),
               ),
             ),
-            SizedBox(width: 10),
+            const SizedBox(width: 10),
             Column(
               crossAxisAlignment: CrossAxisAlignment.start,
               children: [
-                Text(
-                  widget.user.name,
-                  style: TextStyle(fontSize: 25),
-                ),
-                Text(
-                  'Last seen: ${widget.user.lastActive}',
-                  style: TextStyle(fontSize: 12),
-                ),
+                Text(widget.user.name, style: const TextStyle(fontSize: 18)),
+                Text('Last seen: ${widget.user.lastActive}',
+                    style: const TextStyle(fontSize: 12)),
               ],
             ),
           ],
@@ -107,9 +123,7 @@ class _ChatScreenState extends State<ChatScreen> {
                         padding: const EdgeInsets.only(top: 10),
                         physics: const BouncingScrollPhysics(),
                         itemBuilder: (context, index) {
-                          return MessageCard(
-                            message: _list[index],
-                          );
+                          return MessageCard(message: _list[index]);
                         },
                       )
                     : const Center(
@@ -122,79 +136,117 @@ class _ChatScreenState extends State<ChatScreen> {
               },
             ),
           ),
-          _chatInput(_textController, widget.user)
+          _chatInput(),
+          Padding(
+            padding: const EdgeInsets.only(bottom: 12),
+            child: Offstage(
+              offstage: !_showEmoji,
+              child: SizedBox(
+                height: 360,
+                child: EmojiPicker(
+                  textEditingController: _textController,
+                  config: Config(
+                    emojiViewConfig: const EmojiViewConfig(
+                        backgroundColor: Colors.white, emojiSizeMax: 30),
+                    viewOrderConfig: const ViewOrderConfig(
+                      top: EmojiPickerItem.searchBar,
+                      middle: EmojiPickerItem.emojiView,
+                      bottom: EmojiPickerItem.categoryBar,
+                    ),
+                    skinToneConfig: const SkinToneConfig(),
+                    categoryViewConfig: const CategoryViewConfig(
+                      backgroundColor: Colors.white,
+                      dividerColor: Colors.white,
+                      iconColorSelected: Colors.black,
+                    ),
+                    bottomActionBarConfig: const BottomActionBarConfig(
+                        backgroundColor: Colors.white,
+                        buttonColor: Color.fromARGB(255, 172, 172, 172),
+                        buttonIconColor: Colors.black,
+                        showBackspaceButton: true),
+                    searchViewConfig: const SearchViewConfig(
+                        hintText: "Search Emoji",
+                        backgroundColor: Colors.white,
+                        buttonIconColor: Colors.black),
+                  ),
+                ),
+              ),
+            ),
+          ),
         ],
       ),
     );
   }
-}
 
-Widget _chatInput(TextEditingController textController, ChatUser user) {
-  return Padding(
-    padding: EdgeInsets.symmetric(vertical: 20, horizontal: 10),
-    child: Row(
-      children: [
-        Expanded(
-          child: Card(
-            shape: RoundedRectangleBorder(
-              borderRadius: BorderRadius.circular(50),
-            ),
-            child: Row(
-              children: [
-                IconButton(
-                  icon: Icon(
-                    Icons.emoji_emotions_rounded,
-                    color: Colors.black,
+  Widget _chatInput() {
+    return Padding(
+      padding: const EdgeInsets.symmetric(vertical: 12, horizontal: 12),
+      child: Row(
+        children: [
+          Expanded(
+            child: Card(
+              shape: RoundedRectangleBorder(
+                  borderRadius: BorderRadius.circular(50)),
+              child: Row(
+                children: [
+                  IconButton(
+                    icon: const Icon(Icons.emoji_emotions_rounded,
+                        color: Colors.black),
+                    onPressed: () {
+                      FocusScope.of(context).unfocus();
+                      setState(() {
+                        _showEmoji = !_showEmoji;
+                      });
+                    },
                   ),
-                  onPressed: () {},
-                ),
-                Expanded(
-                  child: TextField(
-                    controller: textController,
-                    keyboardType: TextInputType.multiline,
-                    maxLines: null,
-                    decoration: InputDecoration(
-                      border: InputBorder.none,
-                      hintText: 'Message',
+                  Expanded(
+                    child: TextField(
+                      controller: _textController,
+                      focusNode: _focusNode,
+                      keyboardType: TextInputType.multiline,
+                      maxLines: null,
+                      onTap: () {
+                        if (_showEmoji) {
+                          setState(() {
+                            _showEmoji = false;
+                          });
+                        }
+                      },
+                      decoration: const InputDecoration(
+                        border: InputBorder.none,
+                        hintText: 'Message',
+                      ),
                     ),
                   ),
-                ),
-                IconButton(
-                  icon: Icon(
-                    Icons.image_rounded,
-                    color: Colors.black,
+                  IconButton(
+                    icon: const Icon(Icons.image_rounded, color: Colors.black),
+                    onPressed: () {},
                   ),
-                  onPressed: () {},
-                ),
-                IconButton(
-                  icon: Icon(
-                    Icons.camera_alt_rounded,
-                    color: Colors.black,
+                  IconButton(
+                    icon: const Icon(Icons.camera_alt_rounded,
+                        color: Colors.black),
+                    onPressed: () {},
                   ),
-                  onPressed: () {},
-                ),
-                SizedBox(width: 5),
-              ],
+                  const SizedBox(width: 5),
+                ],
+              ),
             ),
           ),
-        ),
-        MaterialButton(
+          MaterialButton(
             onPressed: () {
-              if (textController.text.isNotEmpty) {
-                APIs.sendMessage(user, textController.text);
-                textController.clear();
+              if (_textController.text.isNotEmpty) {
+                APIs.sendMessage(widget.user, _textController.text);
+                _textController.clear();
               }
             },
             minWidth: 0,
             color: Colors.grey.shade300,
-            padding:
-                const EdgeInsets.only(top: 10, bottom: 10, right: 5, left: 10),
+            padding: const EdgeInsets.all(10),
             shape: const CircleBorder(),
-            child: Icon(
-              Icons.send,
-              color: Colors.black,
-            )),
-      ],
-    ),
-  );
+            child: const Icon(Icons.send, color: Colors.black),
+          ),
+        ],
+      ),
+    );
+  }
 }
