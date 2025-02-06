@@ -19,6 +19,7 @@ dependencies:
   cloud_firestore: ^5.6.1
   # for store network image
   cached_network_image: ^3.4.1
+  emoji_picker_flutter: ^4.3.0
 
   flutter_svg: ^2.0.17
 

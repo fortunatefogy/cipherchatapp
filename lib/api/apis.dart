@@ -89,7 +89,7 @@ class APIs {
 
   // Send encrypted message
   static Future<void> sendMessage(ChatUser chatUser, String msg) async {
-    final time = DateTime.now().microsecondsSinceEpoch.toString();
+    final time = DateTime.now().millisecondsSinceEpoch.toString();
     final encryptedMsg = EncryptionUtil.encrypt(msg); // Encrypt message
 
     final Message message = Message(
@@ -110,5 +110,14 @@ class APIs {
         .collection('chats/${getConversationID(message.fromId)}/messages/')
         .doc(message.sent)
         .update({'read': DateTime.now().microsecondsSinceEpoch.toString()});
+  }
+
+  static Stream<QuerySnapshot<Map<String, dynamic>>> getLastMessage(
+      ChatUser user) {
+    return firestore
+        .collection('chats/${getConversationID(user.id)}/messages/')
+        .orderBy('sent', descending: true)
+        .limit(1)
+        .snapshots();
   }
 }

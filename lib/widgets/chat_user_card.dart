@@ -1,5 +1,8 @@
 import 'package:cached_network_image/cached_network_image.dart';
+import 'package:cipher/api/apis.dart';
+import 'package:cipher/helper/my_date_util.dart';
 import 'package:cipher/models/chat_user.dart';
+import 'package:cipher/models/message.dart';
 import 'package:cipher/screens/chat_screen.dart';
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
@@ -13,6 +16,7 @@ class ChatUserCard extends StatefulWidget {
 }
 
 class _ChatUserCardState extends State<ChatUserCard> {
+  Message? _message;
   late Size mq;
 
   @override
@@ -24,7 +28,7 @@ class _ChatUserCardState extends State<ChatUserCard> {
   @override
   Widget build(BuildContext context) {
     return Card(
-      margin: EdgeInsets.symmetric(vertical: 5, horizontal: 10),
+      margin: const EdgeInsets.symmetric(vertical: 5, horizontal: 10),
       color: const Color.fromARGB(255, 191, 199, 204),
       elevation: 5,
       shape: RoundedRectangleBorder(
@@ -32,88 +36,111 @@ class _ChatUserCardState extends State<ChatUserCard> {
       ),
       child: InkWell(
         onTap: () {
-          Navigator.push(context,
-              MaterialPageRoute(builder: (_) => ChatScreen(user: widget.user)));
+          Navigator.push(
+            context,
+            MaterialPageRoute(builder: (_) => ChatScreen(user: widget.user)),
+          );
         },
-        child: ListTile(
-          leading: ClipRRect(
-            borderRadius: BorderRadius.circular(mq.height * .3),
-            child: GestureDetector(
-              onTap: () {
-                showDialog(
-                  context: context,
-                  builder: (BuildContext context) {
-                    return Dialog(
-                      shape: RoundedRectangleBorder(
-                        borderRadius: BorderRadius.circular(20),
-                      ),
-                      child: Stack(
-                        children: [
-                          ClipRRect(
+        child: StreamBuilder(
+          stream: APIs.getLastMessage(widget.user),
+          builder: (context, snapshot) {
+            final data = snapshot.data?.docs;
+
+            // Handle empty or null data to avoid 'Bad state: No element' error
+            if (data == null || data.isEmpty) {
+              _message = null;
+            } else if (data.first.exists) {
+              _message = Message.fromJson(data.first.data());
+            }
+
+            return ListTile(
+              leading: ClipRRect(
+                borderRadius: BorderRadius.circular(mq.height * .3),
+                child: GestureDetector(
+                  onTap: () {
+                    showDialog(
+                      context: context,
+                      builder: (BuildContext context) {
+                        return Dialog(
+                          shape: RoundedRectangleBorder(
                             borderRadius: BorderRadius.circular(20),
-                            child: Image.network(widget.user.image),
                           ),
-                          Positioned(
-                            top: 8,
-                            right: 8,
-                            child: Container(
-                              decoration: BoxDecoration(
-                                color: const Color.fromARGB(255, 255, 255, 255),
-                                shape: BoxShape.circle,
+                          child: Stack(
+                            children: [
+                              ClipRRect(
+                                borderRadius: BorderRadius.circular(20),
+                                child: Image.network(widget.user.image),
                               ),
-                              constraints: BoxConstraints(
-                                maxWidth: 40,
-                                maxHeight: 40,
+                              Positioned(
+                                top: 8,
+                                right: 8,
+                                child: Container(
+                                  decoration: const BoxDecoration(
+                                    color: Colors.white,
+                                    shape: BoxShape.circle,
+                                  ),
+                                  constraints: const BoxConstraints(
+                                    maxWidth: 40,
+                                    maxHeight: 40,
+                                  ),
+                                  child: IconButton(
+                                    icon: const Icon(Icons.close,
+                                        color: Colors.black),
+                                    onPressed: () {
+                                      Navigator.of(context).pop();
+                                    },
+                                  ),
+                                ),
                               ),
-                              child: IconButton(
-                                icon: Icon(Icons.close,
-                                    color: const Color.fromARGB(255, 0, 0, 0)),
-                                onPressed: () {
-                                  Navigator.of(context).pop();
-                                },
-                              ),
-                            ),
+                            ],
                           ),
-                        ],
-                      ),
+                        );
+                      },
                     );
                   },
-                );
-              },
-              child: CachedNetworkImage(
-                fit: BoxFit.cover,
-                width: mq.height * .055,
-                height: mq.height * .055,
-                imageUrl: widget.user.image,
-                placeholder: (context, url) => const CircleAvatar(
-                  backgroundColor: Colors.white,
-                  child: Icon(CupertinoIcons.person),
-                ),
-                errorWidget: (context, url, error) => const CircleAvatar(
-                  backgroundColor: Colors.white,
-                  child: Icon(CupertinoIcons.person),
+                  child: CachedNetworkImage(
+                    fit: BoxFit.cover,
+                    width: mq.height * .055,
+                    height: mq.height * .055,
+                    imageUrl: widget.user.image,
+                    placeholder: (context, url) => const CircleAvatar(
+                      backgroundColor: Colors.white,
+                      child: Icon(CupertinoIcons.person),
+                    ),
+                    errorWidget: (context, url, error) => const CircleAvatar(
+                      backgroundColor: Colors.white,
+                      child: Icon(CupertinoIcons.person),
+                    ),
+                  ),
                 ),
               ),
-            ),
-          ),
-          title: Text(
-            widget.user.name,
-            maxLines: 1,
-          ),
-          subtitle: Text(
-            widget.user.about,
-            maxLines: 1,
-          ),
-          //   trailing: Text("12:00 PM"),
-          // ),
-          trailing: Container(
-            width: 15,
-            height: 15,
-            decoration: BoxDecoration(
-              color: Colors.green,
-              shape: BoxShape.circle,
-            ),
-          ),
+              title: Text(
+                widget.user.name,
+                maxLines: 1,
+              ),
+              subtitle: Text(
+                _message != null ? _message!.msg : widget.user.about,
+                maxLines: 1,
+              ),
+              trailing: _message == null
+                  ? null
+                  : _message!.read.isEmpty && _message!.fromId != APIs.user.uid
+                      ? Container(
+                          width: 15,
+                          height: 15,
+                          decoration: const BoxDecoration(
+                            color: Colors.green,
+                            shape: BoxShape.circle,
+                          ),
+                        )
+                      : Text(
+                          MyDateUtil.getLastMessageTime(
+                              context: context, time: _message!.sent),
+                          style: const TextStyle(
+                              color: Colors.black, fontSize: 12),
+                        ),
+            );
+          },
         ),
       ),
     );
