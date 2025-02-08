@@ -21,6 +21,35 @@ class ProfileScreen extends StatefulWidget {
 }
 
 class _ProfileScreenState extends State<ProfileScreen> {
+  Widget showProgressBar() {
+    return Center(
+      child: Container(
+        width: 70,
+        height: 70,
+        decoration: BoxDecoration(
+          color: Colors.white,
+          shape: BoxShape.circle,
+        ),
+        child: Padding(
+          padding: const EdgeInsets.all(20.0),
+          child: Stack(
+            alignment: Alignment.center,
+            children: [
+              Image.asset(
+                'assets/icon/icon.png',
+                width: 40,
+                height: 40,
+              ),
+              CircularProgressIndicator(
+                valueColor: AlwaysStoppedAnimation<Color>(Colors.black),
+              ),
+            ],
+          ),
+        ),
+      ),
+    );
+  }
+
   late Size mq;
   String? _image;
 
@@ -139,9 +168,8 @@ class _ProfileScreenState extends State<ProfileScreen> {
                                             imageUrl: widget.user.image,
                                             fit: BoxFit.cover,
                                             placeholder: (context, url) =>
-                                                const Center(
-                                                    child:
-                                                        CircularProgressIndicator()),
+                                                Center(
+                                                    child: showProgressBar()),
                                             errorWidget:
                                                 (context, url, error) =>
                                                     const Icon(Icons.error),

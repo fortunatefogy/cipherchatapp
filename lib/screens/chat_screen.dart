@@ -44,8 +44,6 @@ class _ChatScreenState extends State<ChatScreen> {
 
       await APIs.sendImageMessage(
           chatUser, imageUrl); // Store encrypted image in Firestore
-
-      Dialogs.showSnackbar(context, 'Image Sent Successfully');
     } else {
       Dialogs.showSnackbar(context, 'Image Upload Failed');
     }
@@ -53,7 +51,7 @@ class _ChatScreenState extends State<ChatScreen> {
 
   List<Message> _list = [];
   final _textController = TextEditingController();
-  bool _showEmoji = false;
+  bool _showEmoji = false, _isUploading = false;
   FocusNode _focusNode = FocusNode();
 
   @override
@@ -74,16 +72,6 @@ class _ChatScreenState extends State<ChatScreen> {
     _focusNode.dispose();
     _scrollController.dispose();
     super.dispose();
-  }
-
-  void _scrollToBottom() {
-    if (_scrollController.hasClients) {
-      _scrollController.animateTo(
-        _scrollController.position.maxScrollExtent,
-        duration: const Duration(milliseconds: 300),
-        curve: Curves.easeOut,
-      );
-    }
   }
 
   @override
@@ -165,12 +153,9 @@ class _ChatScreenState extends State<ChatScreen> {
                 _list =
                     data?.map((e) => Message.fromJson(e.data())).toList() ?? [];
 
-                WidgetsBinding.instance.addPostFrameCallback((_) {
-                  _scrollToBottom();
-                });
-
                 return _list.isNotEmpty
                     ? ListView.builder(
+                        reverse: true,
                         controller: _scrollController,
                         itemCount: _list.length,
                         padding: const EdgeInsets.only(top: 10),
@@ -189,6 +174,14 @@ class _ChatScreenState extends State<ChatScreen> {
               },
             ),
           ),
+          if (_isUploading)
+            Align(
+              alignment: Alignment.centerRight,
+              child: Padding(
+                padding: EdgeInsets.symmetric(vertical: 8, horizontal: 16),
+                child: CircularProgressIndicator(),
+              ),
+            ),
           _chatInput(),
           Padding(
             padding: const EdgeInsets.only(bottom: 12),
@@ -276,13 +269,18 @@ class _ChatScreenState extends State<ChatScreen> {
                     onPressed: () async {
                       print('Image URL: ${widget.user.image}');
                       final ImagePicker picker = ImagePicker();
-                      final XFile? image =
-                          await picker.pickImage(source: ImageSource.gallery);
-                      if (image != null) {
-                        setState(() {});
+                      final List<XFile> images =
+                          await picker.pickMultiImage(imageQuality: 70);
+                      for (var i in images) {
+                        setState(() {
+                          _isUploading = true;
+                        });
                         // Navigator.pop(context);
                         await _uploadImageToCloudinary(
-                            File(image.path), widget.user);
+                            File(i.path), widget.user);
+                        setState(() {
+                          _isUploading = false;
+                        });
                       }
                     },
                   ),
@@ -294,10 +292,16 @@ class _ChatScreenState extends State<ChatScreen> {
                       final XFile? image =
                           await picker.pickImage(source: ImageSource.camera);
                       if (image != null) {
+                        setState(() {
+                          _isUploading = true;
+                        });
                         setState(() {});
                         // Navigator.pop(context);
                         await _uploadImageToCloudinary(
                             File(image.path), widget.user);
+                        setState(() {
+                          _isUploading = false;
+                        });
                       }
                     },
                   ),
@@ -311,7 +315,6 @@ class _ChatScreenState extends State<ChatScreen> {
               if (_textController.text.isNotEmpty) {
                 APIs.sendMessage(widget.user, _textController.text);
                 _textController.clear();
-                _scrollToBottom();
               }
             },
             minWidth: 0,

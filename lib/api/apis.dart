@@ -84,6 +84,7 @@ class APIs {
       ChatUser user) {
     return firestore
         .collection('chats/${getConversationID(user.id)}/messages/')
+        .orderBy('sent', descending: true)
         .snapshots();
   }
 
@@ -122,7 +123,8 @@ class APIs {
   }
 
   // Store encrypted image URL from Cloudinary to Firebase based on conversation ID
-  static Future<void> sendImageMessage(ChatUser chatUser, String imageUrl) async {
+  static Future<void> sendImageMessage(
+      ChatUser chatUser, String imageUrl) async {
     final time = DateTime.now().millisecondsSinceEpoch.toString();
     final encryptedUrl = EncryptionUtil.encrypt(imageUrl); // Encrypt image URL
 

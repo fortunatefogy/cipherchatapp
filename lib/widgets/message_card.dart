@@ -1,7 +1,6 @@
 import 'package:cached_network_image/cached_network_image.dart';
 import 'package:cipher/api/apis.dart';
 import 'package:cipher/helper/my_date_util.dart';
-
 import 'package:cipher/models/message.dart';
 import 'package:flutter/material.dart';
 
@@ -14,6 +13,35 @@ class MessageCard extends StatefulWidget {
 }
 
 class _MessageCardState extends State<MessageCard> {
+  Widget showProgressBar() {
+    return Center(
+      child: Container(
+        width: 70,
+        height: 70,
+        decoration: BoxDecoration(
+          color: Colors.white,
+          shape: BoxShape.circle,
+        ),
+        child: Padding(
+          padding: const EdgeInsets.all(20.0),
+          child: Stack(
+            alignment: Alignment.center,
+            children: [
+              Image.asset(
+                'assets/icon/icon.png',
+                width: 40,
+                height: 40,
+              ),
+              CircularProgressIndicator(
+                valueColor: AlwaysStoppedAnimation<Color>(Colors.black),
+              ),
+            ],
+          ),
+        ),
+      ),
+    );
+  }
+
   @override
   Widget build(BuildContext context) {
     return APIs.user.uid == widget.message.fromId
@@ -36,9 +64,9 @@ class _MessageCardState extends State<MessageCard> {
             ),
             margin: EdgeInsets.symmetric(
               vertical: 5,
-              horizontal: 10,
+              horizontal: 5,
             ),
-            padding: EdgeInsets.all(widget.message.type == Type.text ? 10 : 3),
+            padding: EdgeInsets.all(widget.message.type == Type.text ? 10 : 9),
             decoration: BoxDecoration(
               color: const Color.fromARGB(255, 197, 193, 193),
               borderRadius: BorderRadius.only(
@@ -53,7 +81,7 @@ class _MessageCardState extends State<MessageCard> {
                   crossAxisAlignment: CrossAxisAlignment.start,
                   children: [
                     Padding(
-                      padding: const EdgeInsets.only(left: 10),
+                      padding: const EdgeInsets.only(left: 1),
                       child: widget.message.type == Type.text
                           ? Text(
                               widget.message.msg,
@@ -68,9 +96,12 @@ class _MessageCardState extends State<MessageCard> {
                                 imageUrl: widget.message.msg,
                                 errorWidget: (context, url, error) =>
                                     Icon(Icons.broken_image),
-                                placeholder: (context, url) =>
-                                    CircularProgressIndicator(
-                                  strokeWidth: 2,
+                                placeholder: (context, url) => Padding(
+                                  padding: const EdgeInsets.all(8.0),
+                                  child: Padding(
+                                    padding: const EdgeInsets.all(8.0),
+                                    child: showProgressBar(),
+                                  ),
                                 ),
                                 // width: 200,
                                 // height: 200,
@@ -117,9 +148,9 @@ class _MessageCardState extends State<MessageCard> {
             ),
             margin: EdgeInsets.symmetric(
               vertical: 5,
-              horizontal: 10,
+              horizontal: 5,
             ),
-            padding: EdgeInsets.all(widget.message.type == Type.text ? 10 : 3),
+            padding: EdgeInsets.all(widget.message.type == Type.text ? 10 : 1),
             decoration: BoxDecoration(
               color: const Color.fromARGB(255, 0, 0, 0),
               borderRadius: BorderRadius.only(
@@ -134,7 +165,7 @@ class _MessageCardState extends State<MessageCard> {
                   crossAxisAlignment: CrossAxisAlignment.start,
                   children: [
                     Padding(
-                      padding: const EdgeInsets.only(right: 15),
+                      padding: const EdgeInsets.only(right: 1),
                       child: Padding(
                         padding: const EdgeInsets.all(8.0),
                         child: widget.message.type == Type.text
@@ -151,9 +182,12 @@ class _MessageCardState extends State<MessageCard> {
                                   imageUrl: widget.message.msg,
                                   errorWidget: (context, url, error) =>
                                       Icon(Icons.broken_image),
-                                  placeholder: (context, url) =>
-                                      CircularProgressIndicator(
-                                    strokeWidth: 2,
+                                  placeholder: (context, url) => Padding(
+                                    padding: const EdgeInsets.all(8.0),
+                                    child: Padding(
+                                      padding: const EdgeInsets.all(8.0),
+                                      child: showProgressBar(),
+                                    ),
                                   ),
                                   // width: 200,
                                   // height: 200,
@@ -170,12 +204,15 @@ class _MessageCardState extends State<MessageCard> {
                   right: 0,
                   child: Row(
                     children: [
-                      Text(
-                        MyDateUtil.getFormattedTime(
-                            context: context, time: widget.message.sent),
-                        style: TextStyle(
-                          color: const Color.fromARGB(255, 255, 255, 255),
-                          fontSize: 13,
+                      Padding(
+                        padding: const EdgeInsets.all(8.0),
+                        child: Text(
+                          MyDateUtil.getFormattedTime(
+                              context: context, time: widget.message.sent),
+                          style: TextStyle(
+                            color: const Color.fromARGB(255, 255, 255, 255),
+                            fontSize: 13,
+                          ),
                         ),
                       ),
                       SizedBox(width: 4),
