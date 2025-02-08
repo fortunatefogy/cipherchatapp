@@ -1,9 +1,15 @@
+import 'dart:convert';
+import 'dart:io';
+
 import 'package:cipher/api/apis.dart';
+import 'package:cipher/helper/dialogs.dart';
 import 'package:cipher/models/chat_user.dart';
 import 'package:cipher/models/message.dart';
 import 'package:cipher/widgets/message_card.dart';
 import 'package:emoji_picker_flutter/emoji_picker_flutter.dart';
 import 'package:flutter/material.dart';
+import 'package:image_picker/image_picker.dart';
+import 'package:http/http.dart' as http;
 
 class ChatScreen extends StatefulWidget {
   final ChatUser user;
@@ -14,6 +20,37 @@ class ChatScreen extends StatefulWidget {
 }
 
 class _ChatScreenState extends State<ChatScreen> {
+  Future<void> _uploadImageToCloudinary(File imageFile) async {
+    final cloudinaryUrl =
+        'https://api.cloudinary.com/v1_1/dshlsnsyt/image/upload/';
+    final uploadPreset = 'cipher';
+
+    final request = http.MultipartRequest('POST', Uri.parse(cloudinaryUrl))
+      ..fields['upload_preset'] = uploadPreset
+      ..fields['folder'] = 'chatimages'
+      ..files.add(await http.MultipartFile.fromPath('file', imageFile.path));
+
+    final response = await request.send();
+
+    if (response.statusCode == 200) {
+      final responseData = await response.stream.bytesToString();
+      final jsonResponse = json.decode(responseData);
+      final imageUrl = jsonResponse['secure_url'];
+
+      print('Cloudinary Image URL: $imageUrl'); // Debug output
+
+      await APIs.updateUserImage(imageUrl).then((value) {
+        setState(() {
+          widget.user.image = imageUrl; // Update the image field
+// Reset the local image path
+        }); // Print updated image URL
+        Dialogs.showSnackbar(context, 'Profile Image Updated');
+      });
+    } else {
+      Dialogs.showSnackbar(context, 'Image Upload Failed');
+    }
+  }
+
   List<Message> _list = [];
   final _textController = TextEditingController();
   bool _showEmoji = false;
@@ -220,12 +257,31 @@ class _ChatScreenState extends State<ChatScreen> {
                   ),
                   IconButton(
                     icon: const Icon(Icons.image_rounded, color: Colors.black),
-                    onPressed: () {},
+                    onPressed: () async {
+                      print('Image URL: ${widget.user.image}');
+                      final ImagePicker picker = ImagePicker();
+                      final XFile? image =
+                          await picker.pickImage(source: ImageSource.gallery);
+                      if (image != null) {
+                        setState(() {});
+                        Navigator.pop(context);
+                        await _uploadImageToCloudinary(File(image.path));
+                      }
+                    },
                   ),
                   IconButton(
                     icon: const Icon(Icons.camera_alt_rounded,
                         color: Colors.black),
-                    onPressed: () {},
+                    onPressed: () async {
+                      final ImagePicker picker = ImagePicker();
+                      final XFile? image =
+                          await picker.pickImage(source: ImageSource.camera);
+                      if (image != null) {
+                        setState(() {});
+                        Navigator.pop(context);
+                        await _uploadImageToCloudinary(File(image.path));
+                      }
+                    },
                   ),
                   const SizedBox(width: 5),
                 ],
