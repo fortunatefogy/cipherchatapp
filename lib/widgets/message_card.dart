@@ -1,3 +1,4 @@
+import 'package:cached_network_image/cached_network_image.dart';
 import 'package:cipher/api/apis.dart';
 import 'package:cipher/helper/my_date_util.dart';
 
@@ -37,7 +38,7 @@ class _MessageCardState extends State<MessageCard> {
               vertical: 5,
               horizontal: 10,
             ),
-            padding: EdgeInsets.all(10),
+            padding: EdgeInsets.all(widget.message.type == Type.text ? 10 : 3),
             decoration: BoxDecoration(
               color: const Color.fromARGB(255, 197, 193, 193),
               borderRadius: BorderRadius.only(
@@ -52,14 +53,30 @@ class _MessageCardState extends State<MessageCard> {
                   crossAxisAlignment: CrossAxisAlignment.start,
                   children: [
                     Padding(
-                      padding: const EdgeInsets.only(left: 15),
-                      child: Text(
-                        widget.message.msg,
-                        style: TextStyle(
-                          color: Colors.black,
-                          fontSize: 16,
-                        ),
-                      ),
+                      padding: const EdgeInsets.only(left: 10),
+                      child: widget.message.type == Type.text
+                          ? Text(
+                              widget.message.msg,
+                              style: TextStyle(
+                                color: Colors.black,
+                                fontSize: 16,
+                              ),
+                            )
+                          : ClipRRect(
+                              borderRadius: BorderRadius.circular(10),
+                              child: CachedNetworkImage(
+                                imageUrl: widget.message.msg,
+                                errorWidget: (context, url, error) =>
+                                    Icon(Icons.broken_image),
+                                placeholder: (context, url) =>
+                                    CircularProgressIndicator(
+                                  strokeWidth: 2,
+                                ),
+                                // width: 200,
+                                // height: 200,
+                                fit: BoxFit.cover,
+                              ),
+                            ),
                     ),
                     SizedBox(height: 20), // Add some space for the time
                   ],
@@ -102,7 +119,7 @@ class _MessageCardState extends State<MessageCard> {
               vertical: 5,
               horizontal: 10,
             ),
-            padding: EdgeInsets.all(10),
+            padding: EdgeInsets.all(widget.message.type == Type.text ? 10 : 3),
             decoration: BoxDecoration(
               color: const Color.fromARGB(255, 0, 0, 0),
               borderRadius: BorderRadius.only(
@@ -120,13 +137,29 @@ class _MessageCardState extends State<MessageCard> {
                       padding: const EdgeInsets.only(right: 15),
                       child: Padding(
                         padding: const EdgeInsets.all(8.0),
-                        child: Text(
-                          widget.message.msg,
-                          style: TextStyle(
-                            color: const Color.fromARGB(255, 255, 255, 255),
-                            fontSize: 16,
-                          ),
-                        ),
+                        child: widget.message.type == Type.text
+                            ? Text(
+                                widget.message.msg,
+                                style: TextStyle(
+                                  color: Colors.white,
+                                  fontSize: 16,
+                                ),
+                              )
+                            : ClipRRect(
+                                borderRadius: BorderRadius.circular(15),
+                                child: CachedNetworkImage(
+                                  imageUrl: widget.message.msg,
+                                  errorWidget: (context, url, error) =>
+                                      Icon(Icons.broken_image),
+                                  placeholder: (context, url) =>
+                                      CircularProgressIndicator(
+                                    strokeWidth: 2,
+                                  ),
+                                  // width: 200,
+                                  // height: 200,
+                                  fit: BoxFit.cover,
+                                ),
+                              ),
                       ),
                     ),
                     SizedBox(height: 20), // Add some space for the time

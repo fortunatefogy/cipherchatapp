@@ -20,7 +20,10 @@ class ChatScreen extends StatefulWidget {
 }
 
 class _ChatScreenState extends State<ChatScreen> {
-  Future<void> _uploadImageToCloudinary(File imageFile) async {
+  final ScrollController _scrollController = ScrollController();
+
+  Future<void> _uploadImageToCloudinary(
+      File imageFile, ChatUser chatUser) async {
     final cloudinaryUrl =
         'https://api.cloudinary.com/v1_1/dshlsnsyt/image/upload/';
     final uploadPreset = 'cipher';
@@ -39,13 +42,10 @@ class _ChatScreenState extends State<ChatScreen> {
 
       print('Cloudinary Image URL: $imageUrl'); // Debug output
 
-      await APIs.updateUserImage(imageUrl).then((value) {
-        setState(() {
-          widget.user.image = imageUrl; // Update the image field
-// Reset the local image path
-        }); // Print updated image URL
-        Dialogs.showSnackbar(context, 'Profile Image Updated');
-      });
+      await APIs.sendImageMessage(
+          chatUser, imageUrl); // Store encrypted image in Firestore
+
+      Dialogs.showSnackbar(context, 'Image Sent Successfully');
     } else {
       Dialogs.showSnackbar(context, 'Image Upload Failed');
     }
@@ -72,7 +72,18 @@ class _ChatScreenState extends State<ChatScreen> {
   void dispose() {
     _textController.dispose();
     _focusNode.dispose();
+    _scrollController.dispose();
     super.dispose();
+  }
+
+  void _scrollToBottom() {
+    if (_scrollController.hasClients) {
+      _scrollController.animateTo(
+        _scrollController.position.maxScrollExtent,
+        duration: const Duration(milliseconds: 300),
+        curve: Curves.easeOut,
+      );
+    }
   }
 
   @override
@@ -154,8 +165,13 @@ class _ChatScreenState extends State<ChatScreen> {
                 _list =
                     data?.map((e) => Message.fromJson(e.data())).toList() ?? [];
 
+                WidgetsBinding.instance.addPostFrameCallback((_) {
+                  _scrollToBottom();
+                });
+
                 return _list.isNotEmpty
                     ? ListView.builder(
+                        controller: _scrollController,
                         itemCount: _list.length,
                         padding: const EdgeInsets.only(top: 10),
                         physics: const BouncingScrollPhysics(),
@@ -264,8 +280,9 @@ class _ChatScreenState extends State<ChatScreen> {
                           await picker.pickImage(source: ImageSource.gallery);
                       if (image != null) {
                         setState(() {});
-                        Navigator.pop(context);
-                        await _uploadImageToCloudinary(File(image.path));
+                        // Navigator.pop(context);
+                        await _uploadImageToCloudinary(
+                            File(image.path), widget.user);
                       }
                     },
                   ),
@@ -278,8 +295,9 @@ class _ChatScreenState extends State<ChatScreen> {
                           await picker.pickImage(source: ImageSource.camera);
                       if (image != null) {
                         setState(() {});
-                        Navigator.pop(context);
-                        await _uploadImageToCloudinary(File(image.path));
+                        // Navigator.pop(context);
+                        await _uploadImageToCloudinary(
+                            File(image.path), widget.user);
                       }
                     },
                   ),
@@ -293,6 +311,7 @@ class _ChatScreenState extends State<ChatScreen> {
               if (_textController.text.isNotEmpty) {
                 APIs.sendMessage(widget.user, _textController.text);
                 _textController.clear();
+                _scrollToBottom();
               }
             },
             minWidth: 0,
