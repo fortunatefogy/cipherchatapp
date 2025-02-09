@@ -96,190 +96,226 @@ class _ChatScreenState extends State<ChatScreen> {
     super.dispose();
   }
 
+  Future<bool> _onWillPop() async {
+    if (_showEmoji) {
+      setState(() {
+        _showEmoji = false;
+      });
+      return false;
+    }
+    return true;
+  }
+
   @override
   Widget build(BuildContext context) {
-    return Scaffold(
-      appBar: AppBar(
-        title: Row(
-          children: [
-            GestureDetector(
-              onTap: () {
-                showDialog(
-                  context: context,
-                  builder: (BuildContext context) {
-                    return Dialog(
-                      shape: RoundedRectangleBorder(
-                        borderRadius: BorderRadius.circular(20),
-                      ),
-                      child: Stack(
-                        children: [
-                          ClipRRect(
-                            borderRadius: BorderRadius.circular(20),
-                            child: Image.network(widget.user.image),
-                          ),
-                          Positioned(
-                            top: 8,
-                            right: 8,
-                            child: Container(
-                              decoration: BoxDecoration(
-                                color: Colors.white,
-                                shape: BoxShape.circle,
+    return WillPopScope(
+      onWillPop: _onWillPop,
+      child: Scaffold(
+        appBar: AppBar(
+          title: Row(
+            children: [
+              GestureDetector(
+                onTap: () {
+                  showDialog(
+                    context: context,
+                    builder: (BuildContext context) {
+                      return Dialog(
+                        shape: RoundedRectangleBorder(
+                          borderRadius: BorderRadius.circular(20),
+                        ),
+                        child: Padding(
+                          padding: const EdgeInsets.all(16.0),
+                          child: Column(
+                            mainAxisSize: MainAxisSize.min,
+                            children: [
+                              CircleAvatar(
+                                radius: 50,
+                                backgroundImage:
+                                    NetworkImage(widget.user.image),
                               ),
-                              constraints: const BoxConstraints(
-                                maxWidth: 40,
-                                maxHeight: 40,
+                              const SizedBox(height: 10),
+                              Text(
+                                widget.user.name,
+                                style: const TextStyle(
+                                  fontSize: 20,
+                                  fontWeight: FontWeight.bold,
+                                ),
                               ),
-                              child: IconButton(
-                                icon: const Icon(Icons.close,
-                                    color: Colors.black),
+                              const SizedBox(height: 10),
+                              Text(
+                                widget.user.email,
+                                style: const TextStyle(
+                                  fontSize: 16,
+                                  color: Colors.grey,
+                                ),
+                              ),
+                              const SizedBox(height: 10),
+                              Text(
+                                widget.user.about,
+                                style: const TextStyle(
+                                  fontSize: 14,
+                                  color: Colors.black,
+                                ),
+                                textAlign: TextAlign.center,
+                              ),
+                              const SizedBox(height: 20),
+                              ElevatedButton(
+                                style: ElevatedButton.styleFrom(
+                                  backgroundColor: Colors.black,
+                                ),
                                 onPressed: () {
                                   Navigator.of(context).pop();
                                 },
+                                child: const Text(
+                                  'Close',
+                                  style: TextStyle(color: Colors.white),
+                                ),
                               ),
-                            ),
+                            ],
                           ),
-                        ],
-                      ),
-                    );
-                  },
-                );
-              },
-              child: CircleAvatar(
-                backgroundImage: NetworkImage(widget.user.image),
-              ),
-            ),
-            const SizedBox(width: 10),
-            Column(
-              crossAxisAlignment: CrossAxisAlignment.start,
-              children: [
-                Text(widget.user.name, style: const TextStyle(fontSize: 18)),
-                StreamBuilder(
-                  stream: APIs.firestore
-                      .collection('users')
-                      .doc(widget.user.id)
-                      .snapshots(),
-                  builder: (context, snapshot) {
-                    if (snapshot.hasData && snapshot.data != null) {
-                      final userData = snapshot.data!.data();
-                      final isOnline = userData?['is_online'] ?? false;
-                      final lastActive = userData?['last_active'] ?? '';
-
-                      return Row(
-                        children: [
-                          Container(
-                            width: 8,
-                            height: 8,
-                            margin: const EdgeInsets.only(right: 5),
-                            decoration: BoxDecoration(
-                              shape: BoxShape.circle,
-                              color: isOnline ? Colors.green : Colors.grey,
-                            ),
-                          ),
-                          Text(
-                            isOnline
-                                ? 'Online'
-                                : 'Last seen: ${_formatLastSeen(lastActive)}',
-                            style: const TextStyle(
-                              fontSize: 12,
-                              color: Colors.grey,
-                            ),
-                          ),
-                        ],
-                      );
-                    }
-                    return const Text(
-                      'Last seen: loading...',
-                      style: TextStyle(fontSize: 12),
-                    );
-                  },
-                ),
-              ],
-            ),
-          ],
-        ),
-      ),
-      body: Column(
-        children: [
-          Expanded(
-            child: StreamBuilder(
-              stream: APIs.getAllMessages(widget.user),
-              builder: (context, snapshot) {
-                if (snapshot.connectionState == ConnectionState.waiting ||
-                    snapshot.connectionState == ConnectionState.none) {
-                  return const Center(child: CircularProgressIndicator());
-                }
-
-                final data = snapshot.data?.docs;
-                _list =
-                    data?.map((e) => Message.fromJson(e.data())).toList() ?? [];
-
-                return _list.isNotEmpty
-                    ? ListView.builder(
-                        reverse: true,
-                        controller: _scrollController,
-                        itemCount: _list.length,
-                        padding: const EdgeInsets.only(top: 10),
-                        physics: const BouncingScrollPhysics(),
-                        itemBuilder: (context, index) {
-                          return MessageCard(message: _list[index]);
-                        },
-                      )
-                    : const Center(
-                        child: Text(
-                          'Say Hi 👋!',
-                          style: TextStyle(
-                              fontSize: 20, fontWeight: FontWeight.bold),
                         ),
                       );
-              },
-            ),
+                    },
+                  );
+                },
+                child: CircleAvatar(
+                  backgroundImage: NetworkImage(widget.user.image),
+                ),
+              ),
+              const SizedBox(width: 10),
+              Column(
+                crossAxisAlignment: CrossAxisAlignment.start,
+                children: [
+                  Text(widget.user.name, style: const TextStyle(fontSize: 18)),
+                  StreamBuilder(
+                    stream: APIs.firestore
+                        .collection('users')
+                        .doc(widget.user.id)
+                        .snapshots(),
+                    builder: (context, snapshot) {
+                      if (snapshot.hasData && snapshot.data != null) {
+                        final userData = snapshot.data!.data();
+                        final isOnline = userData?['is_online'] ?? false;
+                        final lastActive = userData?['last_active'] ?? '';
+
+                        return Row(
+                          children: [
+                            Container(
+                              width: 8,
+                              height: 8,
+                              margin: const EdgeInsets.only(right: 5),
+                              decoration: BoxDecoration(
+                                shape: BoxShape.circle,
+                                color: isOnline ? Colors.green : Colors.grey,
+                              ),
+                            ),
+                            Text(
+                              isOnline
+                                  ? 'Online'
+                                  : 'Last seen: ${_formatLastSeen(lastActive)}',
+                              style: const TextStyle(
+                                fontSize: 12,
+                                color: Colors.grey,
+                              ),
+                            ),
+                          ],
+                        );
+                      }
+                      return const Text(
+                        'Last seen: loading...',
+                        style: TextStyle(fontSize: 12),
+                      );
+                    },
+                  ),
+                ],
+              ),
+            ],
           ),
-          if (_isUploading)
-            Align(
-              alignment: Alignment.centerRight,
-              child: Padding(
-                padding: EdgeInsets.symmetric(vertical: 8, horizontal: 16),
-                child: CircularProgressIndicator(),
+        ),
+        body: Column(
+          children: [
+            Expanded(
+              child: StreamBuilder(
+                stream: APIs.getAllMessages(widget.user),
+                builder: (context, snapshot) {
+                  if (snapshot.connectionState == ConnectionState.waiting ||
+                      snapshot.connectionState == ConnectionState.none) {
+                    return const Center(child: CircularProgressIndicator());
+                  }
+
+                  final data = snapshot.data?.docs;
+                  _list =
+                      data?.map((e) => Message.fromJson(e.data())).toList() ??
+                          [];
+
+                  return _list.isNotEmpty
+                      ? ListView.builder(
+                          reverse: true,
+                          controller: _scrollController,
+                          itemCount: _list.length,
+                          padding: const EdgeInsets.only(top: 10),
+                          physics: const BouncingScrollPhysics(),
+                          itemBuilder: (context, index) {
+                            return MessageCard(message: _list[index]);
+                          },
+                        )
+                      : const Center(
+                          child: Text(
+                            'Say Hi 👋!',
+                            style: TextStyle(
+                                fontSize: 20, fontWeight: FontWeight.bold),
+                          ),
+                        );
+                },
               ),
             ),
-          _chatInput(),
-          Padding(
-            padding: const EdgeInsets.only(bottom: 12),
-            child: Offstage(
-              offstage: !_showEmoji,
-              child: SizedBox(
-                height: 360,
-                child: EmojiPicker(
-                  textEditingController: _textController,
-                  config: Config(
-                    emojiViewConfig: const EmojiViewConfig(
-                        backgroundColor: Colors.white, emojiSizeMax: 26),
-                    viewOrderConfig: const ViewOrderConfig(
-                      top: EmojiPickerItem.searchBar,
-                      middle: EmojiPickerItem.emojiView,
-                      bottom: EmojiPickerItem.categoryBar,
+            if (_isUploading)
+              Align(
+                alignment: Alignment.centerRight,
+                child: Padding(
+                  padding: EdgeInsets.symmetric(vertical: 8, horizontal: 16),
+                  child: CircularProgressIndicator(),
+                ),
+              ),
+            _chatInput(),
+            Padding(
+              padding: const EdgeInsets.only(bottom: 12),
+              child: Offstage(
+                offstage: !_showEmoji,
+                child: SizedBox(
+                  height: 360,
+                  child: EmojiPicker(
+                    textEditingController: _textController,
+                    config: Config(
+                      emojiViewConfig: const EmojiViewConfig(
+                          backgroundColor: Colors.white, emojiSizeMax: 26),
+                      viewOrderConfig: const ViewOrderConfig(
+                        top: EmojiPickerItem.searchBar,
+                        middle: EmojiPickerItem.emojiView,
+                        bottom: EmojiPickerItem.categoryBar,
+                      ),
+                      skinToneConfig: const SkinToneConfig(),
+                      categoryViewConfig: const CategoryViewConfig(
+                          backgroundColor: Colors.white,
+                          dividerColor: Colors.white,
+                          iconColorSelected: Colors.black,
+                          indicatorColor: Colors.black),
+                      bottomActionBarConfig: const BottomActionBarConfig(
+                          backgroundColor: Colors.white,
+                          buttonColor: Color.fromARGB(255, 172, 172, 172),
+                          buttonIconColor: Colors.black,
+                          showBackspaceButton: true),
+                      searchViewConfig: const SearchViewConfig(
+                          hintText: "Search Emoji",
+                          backgroundColor: Colors.white,
+                          buttonIconColor: Colors.black),
                     ),
-                    skinToneConfig: const SkinToneConfig(),
-                    categoryViewConfig: const CategoryViewConfig(
-                        backgroundColor: Colors.white,
-                        dividerColor: Colors.white,
-                        iconColorSelected: Colors.black,
-                        indicatorColor: Colors.black),
-                    bottomActionBarConfig: const BottomActionBarConfig(
-                        backgroundColor: Colors.white,
-                        buttonColor: Color.fromARGB(255, 172, 172, 172),
-                        buttonIconColor: Colors.black,
-                        showBackspaceButton: true),
-                    searchViewConfig: const SearchViewConfig(
-                        hintText: "Search Emoji",
-                        backgroundColor: Colors.white,
-                        buttonIconColor: Colors.black),
                   ),
                 ),
               ),
             ),
-          ),
-        ],
+          ],
+        ),
       ),
     );
   }

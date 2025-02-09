@@ -63,13 +63,18 @@ class _ChatUserCardState extends State<ChatUserCard> {
                       builder: (BuildContext context) {
                         return Dialog(
                           shape: RoundedRectangleBorder(
-                            borderRadius: BorderRadius.circular(20),
+                            borderRadius: BorderRadius.circular(150),
                           ),
                           child: Stack(
+                            alignment: Alignment.center,
                             children: [
-                              ClipRRect(
-                                borderRadius: BorderRadius.circular(20),
-                                child: Image.network(widget.user.image),
+                              ClipOval(
+                                child: Image.network(
+                                  widget.user.image,
+                                  fit: BoxFit.cover,
+                                  width: mq.height * .3,
+                                  height: mq.height * .3,
+                                ),
                               ),
                               Positioned(
                                 top: 8,
@@ -80,12 +85,12 @@ class _ChatUserCardState extends State<ChatUserCard> {
                                     shape: BoxShape.circle,
                                   ),
                                   constraints: const BoxConstraints(
-                                    maxWidth: 40,
-                                    maxHeight: 40,
+                                    maxWidth: 30,
+                                    maxHeight: 30,
                                   ),
                                   child: IconButton(
                                     icon: const Icon(Icons.close,
-                                        color: Colors.black),
+                                        color: Colors.black, size: 15),
                                     onPressed: () {
                                       Navigator.of(context).pop();
                                     },
