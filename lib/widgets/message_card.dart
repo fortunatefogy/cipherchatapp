@@ -60,7 +60,7 @@ class _MessageCardState extends State<MessageCard> {
           child: Container(
             constraints: BoxConstraints(
               maxWidth: MediaQuery.of(context).size.width * 0.75,
-              minWidth: MediaQuery.of(context).size.width * 0.25,
+              minWidth: MediaQuery.of(context).size.width * 0.30,
             ),
             margin: EdgeInsets.symmetric(
               vertical: 5,
@@ -144,7 +144,7 @@ class _MessageCardState extends State<MessageCard> {
           child: Container(
             constraints: BoxConstraints(
               maxWidth: MediaQuery.of(context).size.width * 0.75,
-              minWidth: MediaQuery.of(context).size.width * 0.25,
+              minWidth: MediaQuery.of(context).size.width * 0.30,
             ),
             margin: EdgeInsets.symmetric(
               vertical: 5,

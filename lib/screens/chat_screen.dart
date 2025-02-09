@@ -54,6 +54,28 @@ class _ChatScreenState extends State<ChatScreen> {
   bool _showEmoji = false, _isUploading = false;
   FocusNode _focusNode = FocusNode();
 
+  String _formatLastSeen(String lastActive) {
+    if (lastActive.isEmpty) return 'Last seen recently';
+
+    final DateTime lastActiveTime =
+        DateTime.fromMillisecondsSinceEpoch(int.parse(lastActive));
+    final Duration difference = DateTime.now().difference(lastActiveTime);
+
+    if (difference.inMinutes < 1) return 'just now';
+    if (difference.inMinutes < 60) {
+      return '${difference.inMinutes}m ago';
+    }
+    if (difference.inHours < 24) {
+      return '${difference.inHours}h ago';
+    }
+    if (difference.inDays == 1) return 'yesterday';
+    if (difference.inDays < 7) {
+      return '${difference.inDays}d ago';
+    }
+
+    return 'long time ago';
+  }
+
   @override
   void initState() {
     super.initState();
@@ -131,8 +153,46 @@ class _ChatScreenState extends State<ChatScreen> {
               crossAxisAlignment: CrossAxisAlignment.start,
               children: [
                 Text(widget.user.name, style: const TextStyle(fontSize: 18)),
-                Text('Last seen: ${widget.user.lastActive}',
-                    style: const TextStyle(fontSize: 12)),
+                StreamBuilder(
+                  stream: APIs.firestore
+                      .collection('users')
+                      .doc(widget.user.id)
+                      .snapshots(),
+                  builder: (context, snapshot) {
+                    if (snapshot.hasData && snapshot.data != null) {
+                      final userData = snapshot.data!.data();
+                      final isOnline = userData?['is_online'] ?? false;
+                      final lastActive = userData?['last_active'] ?? '';
+
+                      return Row(
+                        children: [
+                          Container(
+                            width: 8,
+                            height: 8,
+                            margin: const EdgeInsets.only(right: 5),
+                            decoration: BoxDecoration(
+                              shape: BoxShape.circle,
+                              color: isOnline ? Colors.green : Colors.grey,
+                            ),
+                          ),
+                          Text(
+                            isOnline
+                                ? 'Online'
+                                : 'Last seen: ${_formatLastSeen(lastActive)}',
+                            style: const TextStyle(
+                              fontSize: 12,
+                              color: Colors.grey,
+                            ),
+                          ),
+                        ],
+                      );
+                    }
+                    return const Text(
+                      'Last seen: loading...',
+                      style: TextStyle(fontSize: 12),
+                    );
+                  },
+                ),
               ],
             ),
           ],
@@ -275,7 +335,6 @@ class _ChatScreenState extends State<ChatScreen> {
                         setState(() {
                           _isUploading = true;
                         });
-                        // Navigator.pop(context);
                         await _uploadImageToCloudinary(
                             File(i.path), widget.user);
                         setState(() {
@@ -296,7 +355,6 @@ class _ChatScreenState extends State<ChatScreen> {
                           _isUploading = true;
                         });
                         setState(() {});
-                        // Navigator.pop(context);
                         await _uploadImageToCloudinary(
                             File(image.path), widget.user);
                         setState(() {

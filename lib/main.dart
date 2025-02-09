@@ -1,8 +1,8 @@
-// import 'package:cipher/onboarding_screen.dart';
 import 'package:cipher/screens/splash_screen.dart';
 import 'package:flutter/material.dart';
 import 'package:firebase_core/firebase_core.dart';
 import 'package:flutter_dotenv/flutter_dotenv.dart';
+import 'package:cipher/api/apis.dart';
 import 'firebase_options.dart';
 
 late Size mq;
@@ -16,8 +16,40 @@ void main() async {
   runApp(const MyApp());
 }
 
-class MyApp extends StatelessWidget {
+class MyApp extends StatefulWidget {
   const MyApp({super.key});
+
+  @override
+  State<MyApp> createState() => _MyAppState();
+}
+
+class _MyAppState extends State<MyApp> with WidgetsBindingObserver {
+  @override
+  void initState() {
+    super.initState();
+    WidgetsBinding.instance.addObserver(this);
+  }
+
+  @override
+  void dispose() {
+    WidgetsBinding.instance.removeObserver(this);
+    super.dispose();
+  }
+
+  @override
+  void didChangeAppLifecycleState(AppLifecycleState state) {
+    super.didChangeAppLifecycleState(state);
+
+    if (APIs.auth.currentUser != null) {
+      if (state == AppLifecycleState.resumed) {
+        // When app is resumed/active
+        APIs.updateActiveStatus(true);
+      } else {
+        // When app is paused/inactive/detached
+        APIs.updateActiveStatus(false);
+      }
+    }
+  }
 
   @override
   Widget build(BuildContext context) {
@@ -33,7 +65,7 @@ class MyApp extends StatelessWidget {
           ),
           titleTextStyle: TextStyle(
             color: Colors.black,
-            fontWeight: FontWeight.bold, // Increased font weight
+            fontWeight: FontWeight.bold,
             fontSize: 28,
           ),
           backgroundColor: Color(0xFFF9F4FB),

@@ -122,6 +122,13 @@ class APIs {
         .snapshots();
   }
 
+  static Future<void> updateActiveStatus(bool isOnline) async {
+    firestore.collection('users').doc(user.uid).update({
+      'is_online': isOnline,
+      'last_active': DateTime.now().millisecondsSinceEpoch.toString(),
+    });
+  }
+
   // Store encrypted image URL from Cloudinary to Firebase based on conversation ID
   static Future<void> sendImageMessage(
       ChatUser chatUser, String imageUrl) async {
