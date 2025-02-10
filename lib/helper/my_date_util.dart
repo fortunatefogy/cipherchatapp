@@ -53,4 +53,10 @@ class MyDateUtil {
         return '';
     }
   }
+
+  static String getFormattedDate(String createdAt) {
+    final DateTime date =
+        DateTime.fromMillisecondsSinceEpoch(int.parse(createdAt));
+    return '${date.day} ${_getMonth(date)} ${date.year}';
+  }
 }

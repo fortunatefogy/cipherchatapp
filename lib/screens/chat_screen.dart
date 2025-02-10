@@ -1,8 +1,11 @@
+// ignore_for_file: deprecated_member_use
+
 import 'dart:convert';
 import 'dart:io';
 
 import 'package:cipher/api/apis.dart';
 import 'package:cipher/helper/dialogs.dart';
+import 'package:cipher/helper/my_date_util.dart';
 import 'package:cipher/models/chat_user.dart';
 import 'package:cipher/models/message.dart';
 import 'package:cipher/widgets/message_card.dart';
@@ -158,6 +161,14 @@ class _ChatScreenState extends State<ChatScreen> {
                                 ),
                                 textAlign: TextAlign.center,
                               ),
+                              const SizedBox(height: 10),
+                                Text(
+                                'Joined: ${MyDateUtil.getFormattedDate(widget.user.createdAt)}',
+                                style: const TextStyle(
+                                  fontSize: 14,
+                                  color: Colors.black,
+                                ),
+                                ),
                               const SizedBox(height: 20),
                               ElevatedButton(
                                 style: ElevatedButton.styleFrom(
