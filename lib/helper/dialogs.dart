@@ -13,7 +13,7 @@ class Dialogs {
         borderRadius: BorderRadius.circular(15),
       ),
       margin: EdgeInsets.all(10),
-      duration: Duration(seconds: 3),
+      duration: Duration(seconds: 1),
       action: SnackBarAction(
         label: 'DISMISS',
         textColor: Colors.yellow,

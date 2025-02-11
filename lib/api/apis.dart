@@ -3,6 +3,7 @@ import 'package:cipher/models/chat_user.dart';
 import 'package:cipher/models/message.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:firebase_auth/firebase_auth.dart';
+import 'package:http/http.dart' as http;
 
 class APIs {
   static FirebaseAuth auth = FirebaseAuth.instance;
@@ -127,6 +128,36 @@ class APIs {
       'is_online': isOnline,
       'last_active': DateTime.now().millisecondsSinceEpoch.toString(),
     });
+  }
+
+  static Future<void> deleteMessage(Message message) async {
+    final messageRef = firestore
+        .collection('chats/${getConversationID(message.toId)}/messages/')
+        .doc(message.sent);
+
+    if (message.type == 'image') {
+      await _deleteFromCloudinary(message.msg);
+    }
+
+    await messageRef.delete();
+  }
+
+  static Future<void> _deleteFromCloudinary(String imageUrl) async {
+    final cloudinaryDeleteUrl =
+        'https://api.cloudinary.com/v1_1/dshlsnsyt/delete_by_token';
+
+    final response = await http.post(
+      Uri.parse(cloudinaryDeleteUrl),
+      body: {
+        'token': imageUrl
+      }, // Assuming Cloudinary allows deletion via token
+    );
+
+    if (response.statusCode == 200) {
+      print('Image deleted from Cloudinary');
+    } else {
+      print('Failed to delete image from Cloudinary');
+    }
   }
 
   // Store encrypted image URL from Cloudinary to Firebase based on conversation ID

@@ -1,8 +1,10 @@
 import 'package:cached_network_image/cached_network_image.dart';
 import 'package:cipher/api/apis.dart';
+import 'package:cipher/helper/dialogs.dart';
 import 'package:cipher/helper/my_date_util.dart';
 import 'package:cipher/models/message.dart';
 import 'package:flutter/material.dart';
+import 'package:flutter/services.dart';
 
 class MessageCard extends StatefulWidget {
   const MessageCard({super.key, required this.message});
@@ -266,7 +268,14 @@ class _MessageCardState extends State<MessageCard> {
                         size: 26,
                       ),
                       name: "Copy Message",
-                      onTap: () {},
+                      onTap: () async {
+                        await Clipboard.setData(
+                                ClipboardData(text: widget.message.msg))
+                            .then((value) {
+                          Navigator.pop(context);
+                          Dialogs.showSnackbar(context, "Message copied ");
+                        });
+                      },
                     )
                   : _OptionItem(
                       icon: Icon(
@@ -292,7 +301,8 @@ class _MessageCardState extends State<MessageCard> {
                     color: Colors.black,
                     size: 26,
                   ),
-                  name: "Sent at",
+                  name:
+                      "Sent at :${MyDateUtil.getLastMessageTime(context: context, time: widget.message.sent)}",
                   onTap: () {}),
               _OptionItem(
                   icon: Icon(
@@ -300,7 +310,9 @@ class _MessageCardState extends State<MessageCard> {
                     color: Colors.black,
                     size: 26,
                   ),
-                  name: "Read at",
+                  name: widget.message.read.isEmpty
+                      ? "Not seen yet"
+                      : "Read at :${MyDateUtil.getLastMessageTime(context: context, time: widget.message.read)}",
                   onTap: () {}),
               if (isMe)
                 _OptionItem(
@@ -310,7 +322,13 @@ class _MessageCardState extends State<MessageCard> {
                       size: 26,
                     ),
                     name: "Delete Message",
-                    onTap: () {}),
+                    onTap: () async {
+                      
+                      await APIs.deleteMessage(widget.message).then((value) {
+                        Dialogs.showSnackbar(context, "Message deleted");
+                        Navigator.pop(context);
+                      });
+                    }),
             ],
           );
         });
