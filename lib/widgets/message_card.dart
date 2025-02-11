@@ -1,3 +1,5 @@
+import 'dart:io';
+
 import 'package:cached_network_image/cached_network_image.dart';
 import 'package:cipher/api/apis.dart';
 import 'package:cipher/helper/dialogs.dart';
@@ -5,6 +7,8 @@ import 'package:cipher/helper/my_date_util.dart';
 import 'package:cipher/models/message.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
+import 'package:flutter/foundation.dart';
+import 'package:saver_gallery/saver_gallery.dart';
 
 class MessageCard extends StatefulWidget {
   const MessageCard({super.key, required this.message});
@@ -12,6 +16,26 @@ class MessageCard extends StatefulWidget {
 
   @override
   State<MessageCard> createState() => _MessageCardState();
+}
+
+Future<void> _saveImageFromChat(String imageUrl, BuildContext context) async {
+  try {
+    final response = await HttpClient().getUrl(Uri.parse(imageUrl));
+    final bytes =
+        await consolidateHttpClientResponseBytes(await response.close());
+
+    await SaverGallery.saveImage(
+      bytes,
+      quality: 80,
+      fileName: "chat_image.jpg",
+      androidRelativePath: "Pictures/CipherApp/Images",
+      skipIfExists: false,
+    );
+
+    Dialogs.showSnackbar(context, "Image saved successfully");
+  } catch (e) {
+    Dialogs.showSnackbar(context, "Error saving image: $e");
+  }
 }
 
 class _MessageCardState extends State<MessageCard> {
@@ -284,7 +308,11 @@ class _MessageCardState extends State<MessageCard> {
                         size: 26,
                       ),
                       name: "Download Image",
-                      onTap: () {},
+                      onTap: () {
+                        _saveImageFromChat(widget.message.msg, context);
+                        Navigator.pop(context);
+                        Dialogs.showSnackbar(context, "Saved to gallery");
+                      },
                     ),
               if (widget.message.type == Type.text && isMe)
                 _OptionItem(
@@ -323,7 +351,6 @@ class _MessageCardState extends State<MessageCard> {
                     ),
                     name: "Delete Message",
                     onTap: () async {
-                      
                       await APIs.deleteMessage(widget.message).then((value) {
                         Dialogs.showSnackbar(context, "Message deleted");
                         Navigator.pop(context);
