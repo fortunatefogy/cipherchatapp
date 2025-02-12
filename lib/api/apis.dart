@@ -29,7 +29,8 @@ class APIs {
           .collection('users')
           .doc(user.uid)
           .collection('my_users')
-          .doc(data.docs.first.id).set({});
+          .doc(data.docs.first.id)
+          .set({});
       return true;
     } else {
       return false;
@@ -67,7 +68,8 @@ class APIs {
   }
 
   // for getting all users
-  static Stream<QuerySnapshot<Map<String, dynamic>>> getAllUsers(List <String> userIds) {
+  static Stream<QuerySnapshot<Map<String, dynamic>>> getAllUsers(
+      List<String> userIds) {
     return firestore
         .collection('users')
         .where('id', whereIn: userIds)
@@ -102,6 +104,16 @@ class APIs {
     }
   }
 
+  static Future<void> sendFirstMessage(
+      ChatUser chatUser, String msg, Type type) async {
+    await firestore
+        .collection('users')
+        .doc(chatUser.id)
+        .collection('my_users')
+        .doc(user.uid)
+        .set({}).then((value) => sendMessage(chatUser, msg, type));
+  }
+
   static String getConversationID(String id) => user.uid.hashCode <= id.hashCode
       ? '${user.uid}_$id'
       : '${id}_${user.uid}';
@@ -116,7 +128,7 @@ class APIs {
   }
 
   // Send encrypted message
-  static Future<void> sendMessage(ChatUser chatUser, String msg) async {
+  static Future<void> sendMessage(ChatUser chatUser, String msg,Type type) async {
     final time = DateTime.now().millisecondsSinceEpoch.toString();
     final encryptedMsg = EncryptionUtil.encrypt(msg); // Encrypt message
 

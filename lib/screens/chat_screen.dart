@@ -162,13 +162,13 @@ class _ChatScreenState extends State<ChatScreen> {
                                 textAlign: TextAlign.center,
                               ),
                               const SizedBox(height: 10),
-                                Text(
+                              Text(
                                 'Joined: ${MyDateUtil.getFormattedDate(widget.user.createdAt)}',
                                 style: const TextStyle(
                                   fontSize: 14,
                                   color: Colors.black,
                                 ),
-                                ),
+                              ),
                               const SizedBox(height: 20),
                               ElevatedButton(
                                 style: ElevatedButton.styleFrom(
@@ -418,8 +418,14 @@ class _ChatScreenState extends State<ChatScreen> {
           MaterialButton(
             onPressed: () {
               if (_textController.text.isNotEmpty) {
-                APIs.sendMessage(widget.user, _textController.text);
-                _textController.clear();
+                if (_list.isEmpty) {
+                  APIs.sendFirstMessage(
+                      widget.user, _textController.text, Type.text);
+                } else {
+                  APIs.sendMessage(
+                      widget.user, _textController.text, Type.text);
+                  _textController.clear();
+                }
               }
             },
             minWidth: 0,
