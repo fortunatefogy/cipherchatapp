@@ -322,7 +322,10 @@ class _MessageCardState extends State<MessageCard> {
                       size: 26,
                     ),
                     name: "Edit Message",
-                    onTap: () {}),
+                    onTap: () {
+                      Navigator.pop(context);
+                      _showMessageUpdateDialog();
+                    }),
               _OptionItem(
                   icon: Icon(
                     Icons.send,
@@ -359,6 +362,53 @@ class _MessageCardState extends State<MessageCard> {
             ],
           );
         });
+  }
+
+  void _showMessageUpdateDialog() {
+    String updatedMsg = widget.message.msg;
+
+    showDialog(
+        context: context,
+        builder: (_) => AlertDialog(
+              contentPadding: const EdgeInsets.only(
+                  left: 24, right: 24, top: 20, bottom: 10),
+              shape: RoundedRectangleBorder(
+                  borderRadius: BorderRadius.circular(20)),
+              title: Row(
+                children: [
+                  Icon(
+                    Icons.message,
+                    color: Colors.black,
+                    size: 28,
+                  ),
+                  Text("Update Message")
+                ],
+              ),
+              content: TextFormField(
+                initialValue: updatedMsg,
+                maxLines: null,
+                onChanged: (value) => updatedMsg = value,
+                decoration: InputDecoration(
+                    border: OutlineInputBorder(
+                        borderRadius: BorderRadius.circular(20))),
+              ),
+              actions: [
+                MaterialButton(
+                    onPressed: () {
+                      Navigator.pop(context);
+                    },
+                    child: Text("Cancel")),
+                MaterialButton(
+                    onPressed: () async {
+                      await APIs.updateMessage(widget.message, updatedMsg)
+                          .then((value) {
+                        Dialogs.showSnackbar(context, "Message updated");
+                        Navigator.pop(context);
+                      });
+                    },
+                    child: Text("Update"))
+              ],
+            ));
   }
 }
 

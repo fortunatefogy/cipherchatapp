@@ -160,6 +160,15 @@ class APIs {
     }
   }
 
+  static Future<void> updateMessage(Message message, String msg) async {
+    final encryptedMsg = EncryptionUtil.encrypt(msg); // Encrypt message
+
+    await firestore
+        .collection('chats/${getConversationID(message.toId)}/messages/')
+        .doc(message.sent)
+        .update({'msg': encryptedMsg});
+  }
+
   // Store encrypted image URL from Cloudinary to Firebase based on conversation ID
   static Future<void> sendImageMessage(
       ChatUser chatUser, String imageUrl) async {
