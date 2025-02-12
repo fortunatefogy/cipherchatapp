@@ -65,6 +65,7 @@ class _ChatUserCardState extends State<ChatUserCard> {
                           shape: RoundedRectangleBorder(
                             borderRadius: BorderRadius.circular(150),
                           ),
+                          backgroundColor: Colors.transparent,
                           child: Stack(
                             alignment: Alignment.center,
                             children: [
@@ -81,7 +82,7 @@ class _ChatUserCardState extends State<ChatUserCard> {
                                 right: 8,
                                 child: Container(
                                   decoration: const BoxDecoration(
-                                    color: Colors.white,
+                                    color: Color.fromARGB(255, 255, 255, 255),
                                     shape: BoxShape.circle,
                                   ),
                                   constraints: const BoxConstraints(
