@@ -37,9 +37,9 @@ class _OnboardingScreenState extends State<OnboardingScreen> {
 
   int _currentPage = 0;
   List colors = const [
-    Color(0xffF9F4FB),
-    Color(0xffF9F4FB),
-    Color(0xffF9F4FB),
+    Color(0xffFDAF1DE),
+    Color(0xffF8EB69B),
+    Color(0xffF235347),
   ];
 
   AnimatedContainer _buildDots({

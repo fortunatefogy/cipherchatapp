@@ -92,7 +92,7 @@ class _HomeScreenState extends State<HomeScreen> {
           ],
         ),
         floatingActionButton: FloatingActionButton(
-          backgroundColor: const Color(0xFF251d28),
+          backgroundColor: const Color(0xFFF235347),
           onPressed: _addChatUserDialog,
           child: const Icon(Icons.add, color: Colors.white),
         ),
@@ -108,7 +108,7 @@ class _HomeScreenState extends State<HomeScreen> {
                   hintText: 'Search User',
                   hintStyle: const TextStyle(color: Colors.black),
                   filled: true,
-                  fillColor: Colors.grey.shade300,
+                  fillColor: const Color(0xFFF8EB69B),
                   border: OutlineInputBorder(
                     borderRadius: BorderRadius.circular(30),
                     borderSide: BorderSide.none,

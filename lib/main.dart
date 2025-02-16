@@ -61,14 +61,14 @@ class _MyAppState extends State<MyApp> with WidgetsBindingObserver {
           centerTitle: false,
           elevation: 2,
           iconTheme: IconThemeData(
-            color: Colors.black,
+            color: Colors.white,
           ),
           titleTextStyle: TextStyle(
-            color: Colors.black,
+            color: Colors.white,
             fontWeight: FontWeight.bold,
             fontSize: 28,
           ),
-          backgroundColor: Color(0xFFF9F4FB),
+          backgroundColor: Color(0xFFF235347),
         ),
       ),
       home: SplashScreen(),

@@ -58,17 +58,15 @@ class _LoginScreenState extends State<LoginScreen> {
       if (user != null) {
         print('\nUser: ${user.user}');
         print('\nUserAdditionalInfo: ${user.additionalUserInfo}');
-        if((await APIs.userExists())){
+        if ((await APIs.userExists())) {
           Navigator.pushReplacement(
-            context, MaterialPageRoute(builder: (_) => const HomeScreen()));
-        }else{
-          await APIs.createUser().then((value){
+              context, MaterialPageRoute(builder: (_) => const HomeScreen()));
+        } else {
+          await APIs.createUser().then((value) {
             Navigator.pushReplacement(
-            context, MaterialPageRoute(builder: (_) => const HomeScreen()));
+                context, MaterialPageRoute(builder: (_) => const HomeScreen()));
           });
-  }
-        
-        
+        }
       }
     });
   }
@@ -105,7 +103,7 @@ class _LoginScreenState extends State<LoginScreen> {
       body: Stack(
         children: [
           Container(
-            color: Color(0xffF9F4FB), // Set the background color to blue
+            color: Color(0xFFF8EB69B), // Set the background color to blue
           ),
           Positioned(
             top: mq.height * 0.20,
