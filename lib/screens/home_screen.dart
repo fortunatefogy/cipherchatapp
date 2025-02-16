@@ -167,6 +167,10 @@ class _HomeScreenState extends State<HomeScreen> {
                               .toList() ??
                           [];
 
+                      // Sort users: Online users first, then offline ones
+                      _list.sort((a, b) =>
+                          (b.isOnline ? 1 : 0).compareTo(a.isOnline ? 1 : 0));
+
                       if (_list.isEmpty) {
                         return const Center(child: Text('No users found'));
                       }

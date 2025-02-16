@@ -20,7 +20,7 @@ class MyDateUtil {
         now.year == sent.year) {
       return TimeOfDay.fromDateTime(sent).format(context);
     }
-    return '${sent.day}/${_getMonth(sent)}/${sent.year}';
+    return '${sent.day}/${_getMonth(sent)}/${sent.year.toString().substring(2)}';
   }
 
   static String _getMonth(DateTime date) {
@@ -59,7 +59,9 @@ class MyDateUtil {
         DateTime.fromMillisecondsSinceEpoch(int.parse(createdAt));
     return '${date.day} ${_getMonth(date)} ${date.year}';
   }
-  static String getMessageTime({required BuildContext context, required String time}) {
+
+  static String getMessageTime(
+      {required BuildContext context, required String time}) {
     final DateTime sent = DateTime.fromMillisecondsSinceEpoch(int.parse(time));
     final DateTime now = DateTime.now();
     if (now.day == sent.day &&

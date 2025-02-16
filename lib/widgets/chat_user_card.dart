@@ -124,13 +124,27 @@ class _ChatUserCardState extends State<ChatUserCard> {
                 widget.user.name,
                 maxLines: 1,
               ),
-              subtitle: Text(
-                _message != null
-                    ? _message!.type == Type.image
-                        ? 'Image'
-                        : _message!.msg
-                    : widget.user.about,
-                maxLines: 1,
+              subtitle: Column(
+                crossAxisAlignment: CrossAxisAlignment.start,
+                children: [
+                  if (widget.user.isOnline)
+                    const Text(
+                      'Online',
+                      style: TextStyle(
+                        fontWeight: FontWeight.bold,
+                        color: Colors.green,
+                        fontSize: 15,
+                      ),
+                    ),
+                  Text(
+                    _message != null
+                        ? _message!.type == Type.image
+                            ? 'Image'
+                            : _message!.msg
+                        : widget.user.about,
+                    maxLines: 1,
+                  ),
+                ],
               ),
               trailing: _message == null
                   ? null
