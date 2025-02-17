@@ -21,7 +21,7 @@ class _OnboardingScreenState extends State<OnboardingScreen> {
     _controller = PageController();
     super.initState();
     SystemChrome.setSystemUIOverlayStyle(SystemUiOverlayStyle(
-      systemNavigationBarColor: Color(0xffF9F4FB),
+      systemNavigationBarColor: Colors.transparent,
       systemNavigationBarIconBrightness: Brightness.dark,
     ));
   }

@@ -44,7 +44,8 @@ class _LoginScreenState extends State<LoginScreen> {
   @override
   void dispose() {
     SystemChrome.setSystemUIOverlayStyle(SystemUiOverlayStyle(
-      systemNavigationBarColor: Colors.black,
+      systemNavigationBarColor: Colors.transparent,
+      statusBarColor: Colors.transparent,
       systemNavigationBarIconBrightness: Brightness.light,
     ));
     _controller.dispose();

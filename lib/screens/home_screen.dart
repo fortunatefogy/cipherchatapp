@@ -204,20 +204,45 @@ class _HomeScreenState extends State<HomeScreen> {
     showDialog(
       context: context,
       builder: (_) => AlertDialog(
-        shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(20)),
-        title: const Text("Add User"),
+        backgroundColor: Color(0xffF8EB69B),
+        shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(50)),
+        title: const Text(
+          "Add User",
+          style: TextStyle(fontWeight: FontWeight.bold, color: Colors.black),
+        ),
         content: TextFormField(
           onChanged: (value) => email = value,
+          style: const TextStyle(color: Colors.black),
           decoration: InputDecoration(
             hintText: 'Enter email',
-            prefixIcon: const Icon(Icons.email),
-            border: OutlineInputBorder(borderRadius: BorderRadius.circular(20)),
+            hintStyle: const TextStyle(color: Colors.grey),
+            prefixIcon: const Icon(Icons.email, color: Color(0xffF235347)),
+            filled: true,
+            fillColor: Colors.white,
+            border: OutlineInputBorder(
+              borderRadius: BorderRadius.circular(20),
+              borderSide: BorderSide.none,
+            ),
+            enabledBorder: OutlineInputBorder(
+              borderRadius: BorderRadius.circular(20),
+              borderSide:
+                  const BorderSide(color: Color.fromARGB(255, 255, 255, 255)),
+            ),
+            focusedBorder: OutlineInputBorder(
+              borderRadius: BorderRadius.circular(20),
+              borderSide: const BorderSide(
+                color: Color(0xffF235347),
+              ),
+            ),
           ),
         ),
         actions: [
           TextButton(
               onPressed: () => Navigator.pop(context),
-              child: const Text("Cancel")),
+              child: const Text(
+                "Cancel",
+                style: TextStyle(color: Colors.black),
+              )),
           TextButton(
             onPressed: () async {
               Navigator.pop(context);
@@ -228,7 +253,10 @@ class _HomeScreenState extends State<HomeScreen> {
                 }
               }
             },
-            child: const Text("Add"),
+            child: const Text(
+              "Add",
+              style: TextStyle(color: Colors.black),
+            ),
           )
         ],
       ),
