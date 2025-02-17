@@ -30,6 +30,7 @@ dependencies:
   dio: ^5.8.0+1
   encrypt: ^5.0.3
   saver_gallery: ^4.0.1
+  adaptive_theme: ^3.7.0
   flutter_dotenv: ^5.2.1
 
 dev_dependencies:

@@ -24,13 +24,18 @@ class _HomeScreenState extends State<HomeScreen> {
   List<ChatUser> _list = [];
   final List<ChatUser> _searchList = [];
   bool _isSearching = false;
+  bool _isDarkMode = false;
   final TextEditingController _searchController = TextEditingController();
   final GlobalKey _menuKey = GlobalKey();
+  final PageController _pageController = PageController();
+  int _selectedIndex = 0;
 
   @override
   void initState() {
     super.initState();
-    APIs.getSelfInfo();
+    APIs.getSelfInfo().then((_) {
+      setState(() {});
+    });
   }
 
   void _showCustomMenu() {
@@ -49,26 +54,64 @@ class _HomeScreenState extends State<HomeScreen> {
       ),
       items: [
         PopupMenuItem(
-          value: 'profile',
+          value: 'theme',
+          child: Row(
+            children: [
+              Icon(
+                _isDarkMode ? Icons.dark_mode : Icons.light_mode,
+                color: Colors.black87,
+              ),
+              const SizedBox(width: 10),
+              Text(_isDarkMode ? 'Light Mode' : 'Dark Mode'),
+            ],
+          ),
+        ),
+        PopupMenuItem(
+          value: 'logout',
           child: Row(
             children: const [
-              Icon(Icons.person, color: Colors.black87),
+              Icon(Icons.logout, color: Colors.black87),
               SizedBox(width: 10),
-              Text('Profile'),
+              Text('Logout'),
             ],
           ),
         ),
       ],
     ).then((value) {
-      if (value == 'profile') {
-        Navigator.push(
-          context,
-          MaterialPageRoute(
-            builder: (_) => ProfileScreen(user: APIs.me),
-          ),
-        );
+      if (value == 'theme') {
+        setState(() {
+          _isDarkMode = !_isDarkMode;
+        });
+      } else if (value == 'logout') {
+        _logout();
       }
     });
+  }
+
+  void _logout() async {
+    Dialogs.showProgressBar(context);
+    await APIs.auth.signOut().then(
+      (value) async {
+        await GoogleSignIn().signOut().then((value) {
+          if (mounted) {
+            Navigator.popUntil(context, (route) => route.isFirst);
+          }
+        });
+      },
+    );
+    if (mounted) {
+      Navigator.pushReplacement(
+        context,
+        MaterialPageRoute(builder: (context) => const LoginScreen()),
+      );
+    }
+  }
+
+  void _onItemTapped(int index) {
+    setState(() {
+      _selectedIndex = index;
+    });
+    _pageController.jumpToPage(index);
   }
 
   @override
@@ -91,113 +134,28 @@ class _HomeScreenState extends State<HomeScreen> {
             ),
           ],
         ),
-        floatingActionButton: FloatingActionButton(
-          backgroundColor: const Color(0xFFF235347),
-          onPressed: _addChatUserDialog,
-          child: const Icon(Icons.add, color: Colors.white),
-        ),
-        body: Column(
+        floatingActionButton: _selectedIndex == 0
+            ? FloatingActionButton(
+                backgroundColor: const Color(0xFFF235347),
+                onPressed: _addChatUserDialog,
+                child: const Icon(Icons.add, color: Colors.white),
+              )
+            : null,
+        body: PageView(
+          controller: _pageController,
+          onPageChanged: (index) {
+            setState(() {
+              _selectedIndex = index;
+            });
+          },
           children: [
-            // Search Bar with updated style
-            Padding(
-              padding: const EdgeInsets.all(8.0),
-              child: TextField(
-                controller: _searchController,
-                style: const TextStyle(color: Colors.black),
-                decoration: InputDecoration(
-                  hintText: 'Search User',
-                  hintStyle: const TextStyle(color: Colors.black),
-                  filled: true,
-                  fillColor: const Color(0xFFF8EB69B),
-                  border: OutlineInputBorder(
-                    borderRadius: BorderRadius.circular(30),
-                    borderSide: BorderSide.none,
-                  ),
-                  prefixIcon: const Icon(Icons.search, color: Colors.black),
-                  suffixIcon: _isSearching
-                      ? IconButton(
-                          icon: const Icon(Icons.cancel, color: Colors.black),
-                          onPressed: () {
-                            setState(() {
-                              _searchController.clear();
-                              _searchList.clear();
-                              _isSearching = false;
-                            });
-                          },
-                        )
-                      : null,
-                ),
-                onChanged: (val) {
-                  _searchList.clear();
-                  for (var user in _list) {
-                    if (user.email.toLowerCase().contains(val.toLowerCase()) ||
-                        user.name.toLowerCase().contains(val.toLowerCase())) {
-                      _searchList.add(user);
-                    }
-                  }
-                  setState(() => _isSearching = val.isNotEmpty);
-                },
-              ),
-            ),
-
-            // Chat List
-            Expanded(
-              child: StreamBuilder(
-                stream: APIs.getMyUsersId(),
-                builder: (context, snapshot) {
-                  if (snapshot.connectionState == ConnectionState.waiting ||
-                      snapshot.connectionState == ConnectionState.none) {
-                    return const Center(child: CircularProgressIndicator());
-                  }
-                  final userIds =
-                      snapshot.data?.docs.map((e) => e.id).toList() ?? [];
-                  if (userIds.isEmpty) {
-                    return const Center(child: Text('No users found'));
-                  }
-
-                  return StreamBuilder(
-                    stream: APIs.getAllUsers(userIds),
-                    builder: (context, snapshot) {
-                      if (snapshot.connectionState == ConnectionState.waiting) {
-                        return const Center(child: CircularProgressIndicator());
-                      }
-                      final data = snapshot.data?.docs;
-                      _list = data
-                              ?.map((e) => ChatUser.fromJson(e.data()))
-                              .toList() ??
-                          [];
-
-                      // Sort users: Online users first, then offline ones
-                      _list.sort((a, b) =>
-                          (b.isOnline ? 1 : 0).compareTo(a.isOnline ? 1 : 0));
-
-                      if (_list.isEmpty) {
-                        return const Center(child: Text('No users found'));
-                      }
-
-                      return ListView.builder(
-                        itemCount:
-                            _isSearching ? _searchList.length : _list.length,
-                        padding: const EdgeInsets.only(top: 10),
-                        physics: const BouncingScrollPhysics(),
-                        itemBuilder: (context, index) {
-                          return ChatUserCard(
-                            user: _isSearching
-                                ? _searchList[index]
-                                : _list[index],
-                          );
-                        },
-                      );
-                    },
-                  );
-                },
-              ),
-            ),
+            _buildChatPage(),
+            ProfileScreen(user: APIs.me),
           ],
         ),
         bottomNavigationBar: BottomNavigationBar(
-          backgroundColor: Color.fromARGB(255, 237, 247, 238),
-          selectedItemColor: Color(0xffF235347),
+          backgroundColor: const Color.fromARGB(255, 241, 250, 244),
+          selectedItemColor: const Color(0xFFF235347),
           items: const [
             BottomNavigationBarItem(
               icon: Icon(Icons.chat),
@@ -208,18 +166,109 @@ class _HomeScreenState extends State<HomeScreen> {
               label: 'Profile',
             ),
           ],
-          onTap: (index) {
-            if (index == 1) {
-              Navigator.push(
-                context,
-                MaterialPageRoute(
-                  builder: (_) => ProfileScreen(user: APIs.me),
-                ),
-              );
-            }
-          },
+          currentIndex: _selectedIndex,
+          onTap: _onItemTapped,
         ),
       ),
+    );
+  }
+
+  Widget _buildChatPage() {
+    return Column(
+      mainAxisSize: MainAxisSize.min,
+      children: [
+        // Search Bar with updated style
+        Padding(
+          padding: const EdgeInsets.all(8.0),
+          child: TextField(
+            controller: _searchController,
+            style: const TextStyle(color: Colors.black),
+            decoration: InputDecoration(
+              hintText: 'Search User',
+              hintStyle: const TextStyle(color: Colors.black),
+              filled: true,
+              fillColor: const Color(0xFFF8EB69B),
+              border: OutlineInputBorder(
+                borderRadius: BorderRadius.circular(30),
+                borderSide: BorderSide.none,
+              ),
+              prefixIcon: const Icon(Icons.search, color: Colors.black),
+              suffixIcon: _isSearching
+                  ? IconButton(
+                      icon: const Icon(Icons.cancel, color: Colors.black),
+                      onPressed: () {
+                        setState(() {
+                          _searchController.clear();
+                          _searchList.clear();
+                          _isSearching = false;
+                        });
+                      },
+                    )
+                  : null,
+            ),
+            onChanged: (val) {
+              _searchList.clear();
+              for (var user in _list) {
+                if (user.email.toLowerCase().contains(val.toLowerCase()) ||
+                    user.name.toLowerCase().contains(val.toLowerCase())) {
+                  _searchList.add(user);
+                }
+              }
+              setState(() => _isSearching = val.isNotEmpty);
+            },
+          ),
+        ),
+
+        // Chat List
+        Expanded(
+          child: StreamBuilder(
+            stream: APIs.getMyUsersId(),
+            builder: (context, snapshot) {
+              if (snapshot.connectionState == ConnectionState.waiting ||
+                  snapshot.connectionState == ConnectionState.none) {
+                return const Center(child: CircularProgressIndicator());
+              }
+              final userIds =
+                  snapshot.data?.docs.map((e) => e.id).toList() ?? [];
+              if (userIds.isEmpty) {
+                return const Center(child: Text('No users found'));
+              }
+
+              return StreamBuilder(
+                stream: APIs.getAllUsers(userIds),
+                builder: (context, snapshot) {
+                  if (snapshot.connectionState == ConnectionState.waiting) {
+                    return const Center(child: CircularProgressIndicator());
+                  }
+                  final data = snapshot.data?.docs;
+                  _list =
+                      data?.map((e) => ChatUser.fromJson(e.data())).toList() ??
+                          [];
+
+                  // Sort users: Online users first, then offline ones
+                  _list.sort((a, b) =>
+                      (b.isOnline ? 1 : 0).compareTo(a.isOnline ? 1 : 0));
+
+                  if (_list.isEmpty) {
+                    return const Center(child: Text('No users found'));
+                  }
+
+                  return ListView.builder(
+                    itemCount: _isSearching ? _searchList.length : _list.length,
+                    padding: const EdgeInsets.only(top: 10),
+                    physics: const BouncingScrollPhysics(),
+                    itemBuilder: (context, index) {
+                      return ChatUserCard(
+                        user: _isSearching ? _searchList[index] : _list[index],
+                      );
+                    },
+                  );
+                },
+              );
+            },
+          ),
+        ),
+      ],
     );
   }
 
