@@ -150,7 +150,16 @@ class _HomeScreenState extends State<HomeScreen> {
           },
           children: [
             _buildChatPage(),
-            ProfileScreen(user: APIs.me),
+            FutureBuilder(
+              future: APIs.getSelfInfo(),
+              builder: (context, snapshot) {
+                if (snapshot.connectionState == ConnectionState.done) {
+                  return ProfileScreen(user: APIs.me);
+                } else {
+                  return const Center(child: CircularProgressIndicator());
+                }
+              },
+            ),
           ],
         ),
         bottomNavigationBar: BottomNavigationBar(

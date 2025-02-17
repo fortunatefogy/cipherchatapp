@@ -1,5 +1,6 @@
 // ignore_for_file: deprecated_member_use
 import 'dart:convert';
+import 'package:shared_preferences/shared_preferences.dart';
 import 'dart:io';
 import 'package:cipher/api/apis.dart';
 import 'package:cipher/helper/dialogs.dart';
@@ -21,6 +22,7 @@ class ChatScreen extends StatefulWidget {
 }
 
 class _ChatScreenState extends State<ChatScreen> {
+  String? _wallpaperPath;
   final ScrollController _scrollController = ScrollController();
 
   Future<void> _uploadImageToCloudinary(
@@ -79,6 +81,7 @@ class _ChatScreenState extends State<ChatScreen> {
 
   @override
   void initState() {
+    _loadWallpaper();
     super.initState();
     _focusNode.addListener(() {
       if (_focusNode.hasFocus && _showEmoji) {
@@ -86,6 +89,21 @@ class _ChatScreenState extends State<ChatScreen> {
           _showEmoji = false;
         });
       }
+    });
+  }
+
+  Future<void> _loadWallpaper() async {
+    final prefs = await SharedPreferences.getInstance();
+    setState(() {
+      _wallpaperPath = prefs.getString('chat_wallpaper');
+    });
+  }
+
+  Future<void> _setWallpaper(String imagePath) async {
+    final prefs = await SharedPreferences.getInstance();
+    await prefs.setString('chat_wallpaper', imagePath);
+    setState(() {
+      _wallpaperPath = imagePath;
     });
   }
 
@@ -242,6 +260,7 @@ class _ChatScreenState extends State<ChatScreen> {
           ),
           actions: [
             PopupMenuButton<String>(
+              offset: const Offset(0, 50),
               onSelected: (value) {
                 if (value == 'clear_chat') {
                   showDialog(
@@ -274,6 +293,18 @@ class _ChatScreenState extends State<ChatScreen> {
                       );
                     },
                   );
+                } else if (value == 'set_wallpaper') {
+                  final ImagePicker picker = ImagePicker();
+                  picker
+                      .pickImage(source: ImageSource.gallery)
+                      .then((image) async {
+                    if (image != null) {
+                      await _setWallpaper(image.path);
+                      // Save the selected image path to shared preferences or any storage
+                      // and use it to set the background wallpaper
+                      print('Wallpaper selected: ${image.path}');
+                    }
+                  });
                 }
               },
               itemBuilder: (BuildContext context) {
@@ -282,92 +313,109 @@ class _ChatScreenState extends State<ChatScreen> {
                     value: 'clear_chat',
                     child: Text('Clear Chat'),
                   ),
+                  const PopupMenuItem<String>(
+                    value: 'set_wallpaper',
+                    child: Text('Set Wallpaper'),
+                  ),
                 ];
               },
             ),
           ],
         ),
-        body: Column(
+        body: Stack(
           children: [
-            Expanded(
-              child: StreamBuilder(
-                stream: APIs.getAllMessages(widget.user),
-                builder: (context, snapshot) {
-                  if (snapshot.connectionState == ConnectionState.waiting ||
-                      snapshot.connectionState == ConnectionState.none) {
-                    return const Center(child: CircularProgressIndicator());
-                  }
-
-                  final data = snapshot.data?.docs;
-                  _list =
-                      data?.map((e) => Message.fromJson(e.data())).toList() ??
-                          [];
-
-                  return _list.isNotEmpty
-                      ? ListView.builder(
-                          reverse: true,
-                          controller: _scrollController,
-                          itemCount: _list.length,
-                          padding: const EdgeInsets.only(top: 10),
-                          physics: const BouncingScrollPhysics(),
-                          itemBuilder: (context, index) {
-                            return MessageCard(message: _list[index]);
-                          },
-                        )
-                      : const Center(
-                          child: Text(
-                            'Say Hi 👋!',
-                            style: TextStyle(
-                                fontSize: 20, fontWeight: FontWeight.bold),
-                          ),
-                        );
-                },
-              ),
-            ),
-            if (_isUploading)
-              Align(
-                alignment: Alignment.centerRight,
-                child: Padding(
-                  padding: EdgeInsets.symmetric(vertical: 8, horizontal: 16),
-                  child: CircularProgressIndicator(),
+            // Fixed wallpaper layer that doesn't move with keyboard
+            if (_wallpaperPath != null)
+              Positioned.fill(
+                child: Image.file(
+                  File(_wallpaperPath!),
+                  fit: BoxFit.cover,
                 ),
               ),
-            _chatInput(),
-            Padding(
-              padding: const EdgeInsets.only(bottom: 12),
-              child: Offstage(
-                offstage: !_showEmoji,
-                child: SizedBox(
-                  height: 360,
-                  child: EmojiPicker(
-                    textEditingController: _textController,
-                    config: Config(
-                      emojiViewConfig: const EmojiViewConfig(
-                          backgroundColor: Colors.white, emojiSizeMax: 26),
-                      viewOrderConfig: const ViewOrderConfig(
-                        top: EmojiPickerItem.searchBar,
-                        middle: EmojiPickerItem.emojiView,
-                        bottom: EmojiPickerItem.categoryBar,
+
+            // Chat content on top of wallpaper
+            Column(
+              children: [
+                Expanded(
+                  child: StreamBuilder(
+                    stream: APIs.getAllMessages(widget.user),
+                    builder: (context, snapshot) {
+                      if (snapshot.connectionState == ConnectionState.waiting ||
+                          snapshot.connectionState == ConnectionState.none) {
+                        return const Center(child: CircularProgressIndicator());
+                      }
+
+                      final data = snapshot.data?.docs;
+                      _list = data
+                              ?.map((e) => Message.fromJson(e.data()))
+                              .toList() ??
+                          [];
+
+                      return _list.isNotEmpty
+                          ? ListView.builder(
+                              reverse: true,
+                              controller: _scrollController,
+                              itemCount: _list.length,
+                              padding: const EdgeInsets.only(top: 10),
+                              physics: const BouncingScrollPhysics(),
+                              itemBuilder: (context, index) {
+                                return MessageCard(message: _list[index]);
+                              },
+                            )
+                          : const Center(
+                              child: Text(
+                                'Say Hi 👋!',
+                                style: TextStyle(
+                                    fontSize: 20, fontWeight: FontWeight.bold),
+                              ),
+                            );
+                    },
+                  ),
+                ),
+                if (_isUploading)
+                  Align(
+                    alignment: Alignment.centerRight,
+                    child: Padding(
+                      padding:
+                          EdgeInsets.symmetric(vertical: 8, horizontal: 16),
+                      child: CircularProgressIndicator(),
+                    ),
+                  ),
+                _chatInput(),
+                Offstage(
+                  offstage: !_showEmoji,
+                  child: SizedBox(
+                    height: 360,
+                    child: EmojiPicker(
+                      textEditingController: _textController,
+                      config: Config(
+                        emojiViewConfig: const EmojiViewConfig(
+                            backgroundColor: Colors.white, emojiSizeMax: 26),
+                        viewOrderConfig: const ViewOrderConfig(
+                          top: EmojiPickerItem.searchBar,
+                          middle: EmojiPickerItem.emojiView,
+                          bottom: EmojiPickerItem.categoryBar,
+                        ),
+                        skinToneConfig: const SkinToneConfig(),
+                        categoryViewConfig: const CategoryViewConfig(
+                            backgroundColor: Colors.white,
+                            dividerColor: Colors.white,
+                            iconColorSelected: Colors.black,
+                            indicatorColor: Colors.black),
+                        bottomActionBarConfig: const BottomActionBarConfig(
+                            backgroundColor: Colors.white,
+                            buttonColor: Color.fromARGB(255, 172, 172, 172),
+                            buttonIconColor: Colors.black,
+                            showBackspaceButton: true),
+                        searchViewConfig: const SearchViewConfig(
+                            hintText: "Search Emoji",
+                            backgroundColor: Colors.white,
+                            buttonIconColor: Colors.black),
                       ),
-                      skinToneConfig: const SkinToneConfig(),
-                      categoryViewConfig: const CategoryViewConfig(
-                          backgroundColor: Colors.white,
-                          dividerColor: Colors.white,
-                          iconColorSelected: Colors.black,
-                          indicatorColor: Colors.black),
-                      bottomActionBarConfig: const BottomActionBarConfig(
-                          backgroundColor: Colors.white,
-                          buttonColor: Color.fromARGB(255, 172, 172, 172),
-                          buttonIconColor: Colors.black,
-                          showBackspaceButton: true),
-                      searchViewConfig: const SearchViewConfig(
-                          hintText: "Search Emoji",
-                          backgroundColor: Colors.white,
-                          buttonIconColor: Colors.black),
                     ),
                   ),
                 ),
-              ),
+              ],
             ),
           ],
         ),

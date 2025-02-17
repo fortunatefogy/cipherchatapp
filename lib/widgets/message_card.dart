@@ -87,7 +87,7 @@ class _MessageCardState extends State<MessageCard> {
       children: [
         Flexible(
           child: Padding(
-            padding: const EdgeInsets.all(8.0),
+            padding: const EdgeInsets.only(left: 8.0),
             child: Container(
               constraints: BoxConstraints(
                 maxWidth: MediaQuery.of(context).size.width * 0.75,
@@ -175,7 +175,7 @@ class _MessageCardState extends State<MessageCard> {
       children: [
         Flexible(
           child: Padding(
-            padding: const EdgeInsets.all(8.0),
+            padding: const EdgeInsets.only(right: 8.0),
             child: Container(
               constraints: BoxConstraints(
                 maxWidth: MediaQuery.of(context).size.width * 0.75,
