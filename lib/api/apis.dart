@@ -77,6 +77,49 @@ class APIs {
         .snapshots();
   }
 
+  static Future<void> clearChatForSender(ChatUser chatUser) async {
+  try {
+    final chatRef = firestore.collection('chats/${getConversationID(chatUser.id)}/messages/');
+    final messagesSnapshot = await chatRef.get();
+
+    for (var doc in messagesSnapshot.docs) {
+      await doc.reference.delete();
+    }
+
+    print('Chat cleared for sender successfully');
+  } catch (e) {
+    print('Error clearing chat for sender: $e');
+  }
+}
+
+static Future<void> clearChatForBoth(ChatUser chatUser) async {
+  try {
+    final chatRef = firestore.collection('chats/${getConversationID(chatUser.id)}/messages/');
+    final messagesSnapshot = await chatRef.get();
+
+    for (var doc in messagesSnapshot.docs) {
+      await doc.reference.delete();
+    }
+
+    await firestore.collection('users')
+        .doc(user.uid)
+        .collection('my_users')
+        .doc(chatUser.id)
+        .delete();
+
+    await firestore.collection('users')
+        .doc(chatUser.id)
+        .collection('my_users')
+        .doc(user.uid)
+        .delete();
+
+    print('Chat cleared for both sender and receiver successfully');
+  } catch (e) {
+    print('Error clearing chat for both: $e');
+  }
+}
+
+
   static Future<void> deleteChat(ChatUser chatUser) async {
   try {
     // Get the reference to the chat collection

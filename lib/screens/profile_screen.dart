@@ -4,6 +4,7 @@ import 'package:cipher/api/apis.dart';
 import 'package:cipher/helper/dialogs.dart';
 import 'package:cipher/models/chat_user.dart';
 import 'package:cipher/screens/auth/login_screen.dart';
+import 'package:cipher/screens/home_screen.dart';
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_svg/svg.dart';
@@ -102,13 +103,11 @@ class _ProfileScreenState extends State<ProfileScreen> {
       },
       child: Scaffold(
         appBar: AppBar(
-          leading: IconButton(
-            icon: const Icon(Icons.arrow_back, color: Colors.black),
-            onPressed: () {
-              Navigator.of(context).pop();
-            },
+          leading: Padding(
+            padding: const EdgeInsets.all(6.0),
+            child: Image.asset('assets/icon/icon.png'),
           ),
-          title: const Text('Profile'),
+          title: const Text('Cipher'),
           actions: [
             IconButton(
               icon: const Icon(Icons.logout, color: Colors.black),
@@ -300,6 +299,30 @@ class _ProfileScreenState extends State<ProfileScreen> {
               ),
             ),
           ),
+        ),
+        bottomNavigationBar: BottomNavigationBar(
+          backgroundColor: Color.fromARGB(255, 237, 247, 238),
+          items: const [
+            BottomNavigationBarItem(
+              icon: Icon(Icons.chat),
+              label: 'Chats',
+            ),
+            BottomNavigationBarItem(
+              icon: Icon(Icons.person),
+              label: 'Profile',
+            ),
+          ],
+          currentIndex: 1, // Set the current index to Profile
+          selectedItemColor:
+              Color(0xffF235347), // Set the color for the selected icon
+          onTap: (index) {
+            if (index == 0) {
+              Navigator.pushReplacement(
+                context,
+                MaterialPageRoute(builder: (context) => HomeScreen()),
+              );
+            }
+          },
         ),
       ),
     );

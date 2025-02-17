@@ -1,8 +1,6 @@
 // ignore_for_file: deprecated_member_use
-
 import 'dart:convert';
 import 'dart:io';
-
 import 'package:cipher/api/apis.dart';
 import 'package:cipher/helper/dialogs.dart';
 import 'package:cipher/helper/my_date_util.dart';
@@ -242,6 +240,52 @@ class _ChatScreenState extends State<ChatScreen> {
               ),
             ],
           ),
+          actions: [
+            PopupMenuButton<String>(
+              onSelected: (value) {
+                if (value == 'clear_chat') {
+                  showDialog(
+                    context: context,
+                    builder: (BuildContext context) {
+                      return AlertDialog(
+                        title: const Text('Clear Chat'),
+                        content: const Text(
+                            'Do you want to clear the chat for both?'),
+                        actions: [
+                          TextButton(
+                            onPressed: () {
+                              APIs.clearChatForSender(widget.user);
+                              // Add your clear chat for you logic here
+                              print('Clear chat for you selected');
+                              Navigator.of(context).pop();
+                            },
+                            child: const Text('Clear Chat'),
+                          ),
+                          TextButton(
+                            onPressed: () {
+                              // APIs.clearChatForBoth(widget.user);
+                              // Add your clear chat for both logic here
+                              // print('Clear chat for both selected');
+                              Navigator.of(context).pop();
+                            },
+                            child: const Text('Cancel'),
+                          ),
+                        ],
+                      );
+                    },
+                  );
+                }
+              },
+              itemBuilder: (BuildContext context) {
+                return [
+                  const PopupMenuItem<String>(
+                    value: 'clear_chat',
+                    child: Text('Clear Chat'),
+                  ),
+                ];
+              },
+            ),
+          ],
         ),
         body: Column(
           children: [
