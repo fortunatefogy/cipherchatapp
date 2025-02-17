@@ -77,6 +77,37 @@ class APIs {
         .snapshots();
   }
 
+  static Future<void> deleteChat(ChatUser chatUser) async {
+  try {
+    // Get the reference to the chat collection
+    final chatRef = firestore.collection('chats/${getConversationID(chatUser.id)}/messages/');
+
+    // Get all messages in the chat and delete them
+    final messagesSnapshot = await chatRef.get();
+    for (var doc in messagesSnapshot.docs) {
+      await doc.reference.delete();
+    }
+
+    // Remove user from 'my_users' subcollection
+    await firestore.collection('users')
+        .doc(user.uid)
+        .collection('my_users')
+        .doc(chatUser.id)
+        .delete();
+
+    await firestore.collection('users')
+        .doc(chatUser.id)
+        .collection('my_users')
+        .doc(user.uid)
+        .delete();
+
+    print('Chat deleted successfully');
+  } catch (e) {
+    print('Error deleting chat: $e');
+  }
+}
+
+
   
 
   static Stream<QuerySnapshot<Map<String, dynamic>>> getMyUsersId() {

@@ -41,12 +41,48 @@ class _ChatUserCardState extends State<ChatUserCard> {
             MaterialPageRoute(builder: (_) => ChatScreen(user: widget.user)),
           );
         },
+        onLongPress: () {
+          showDialog(
+            context: context,
+            builder: (BuildContext context) {
+              return AlertDialog(
+                shape: RoundedRectangleBorder(
+                  borderRadius: BorderRadius.circular(15),
+                ),
+                title: Text(widget.user.name),
+                content: const Text("Select an action"),
+                actions: [
+                  TextButton(
+                    onPressed: () {
+                      APIs.deleteChat(widget.user);
+                      // Perform delete action
+                      Navigator.pop(context);
+                    },
+                    child: const Text("Delete Chat"),
+                  ),
+                  // TextButton(
+                  //   onPressed: () {
+                  //     // Perform mute action
+                  //     Navigator.pop(context);
+                  //   },
+                  //   child: const Text("Mute Notifications"),
+                  // ),
+                  TextButton(
+                    onPressed: () {
+                      Navigator.pop(context);
+                    },
+                    child: const Text("Cancel"),
+                  ),
+                ],
+              );
+            },
+          );
+        },
         child: StreamBuilder(
           stream: APIs.getLastMessage(widget.user),
           builder: (context, snapshot) {
             final data = snapshot.data?.docs;
 
-            // Handle empty or null data to avoid 'Bad state: No element' error
             if (data == null || data.isEmpty) {
               _message = null;
             } else if (data.first.exists) {
