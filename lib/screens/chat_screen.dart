@@ -107,6 +107,14 @@ class _ChatScreenState extends State<ChatScreen> {
     });
   }
 
+  Future<void> _setDefaultWallpaper() async {
+    final prefs = await SharedPreferences.getInstance();
+    await prefs.remove('chat_wallpaper');
+    setState(() {
+      _wallpaperPath = null;
+    });
+  }
+
   @override
   void dispose() {
     _textController.dispose();
@@ -305,6 +313,8 @@ class _ChatScreenState extends State<ChatScreen> {
                       print('Wallpaper selected: ${image.path}');
                     }
                   });
+                } else if (value == 'set_default_wallpaper') {
+                  _setDefaultWallpaper();
                 }
               },
               itemBuilder: (BuildContext context) {
@@ -316,6 +326,10 @@ class _ChatScreenState extends State<ChatScreen> {
                   const PopupMenuItem<String>(
                     value: 'set_wallpaper',
                     child: Text('Set Wallpaper'),
+                  ),
+                  const PopupMenuItem<String>(
+                    value: 'set_default_wallpaper',
+                    child: Text('Set Default Wallpaper'),
                   ),
                 ];
               },
