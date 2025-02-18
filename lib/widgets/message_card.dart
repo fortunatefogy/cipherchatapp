@@ -1,3 +1,5 @@
+// ignore_for_file: invalid_use_of_protected_member
+
 import 'dart:io';
 
 import 'package:cached_network_image/cached_network_image.dart';
@@ -331,8 +333,12 @@ class _MessageCardState extends State<MessageCard> {
                     ),
                     name: "Edit Message",
                     onTap: () {
+                      print("Debug: Edit button tapped"); // Debug print
                       Navigator.pop(context);
-                      _showMessageUpdateDialog();
+                      // Use a small delay to ensure bottom sheet is closed
+                      Future.delayed(Duration(milliseconds: 100), () {
+                        _showMessageUpdateDialog(context);
+                      });
                     }),
               _OptionItem(
                   icon: Icon(
@@ -372,12 +378,13 @@ class _MessageCardState extends State<MessageCard> {
         });
   }
 
-  void _showMessageUpdateDialog() {
+  void _showMessageUpdateDialog(BuildContext context) {
     String updatedMsg = widget.message.msg;
+    final FocusNode _focusNode = FocusNode();
 
     showDialog(
         context: context,
-        builder: (_) => AlertDialog(
+        builder: (dialogContext) => AlertDialog(
               contentPadding: const EdgeInsets.only(
                   left: 24, right: 24, top: 20, bottom: 10),
               shape: RoundedRectangleBorder(
@@ -389,34 +396,58 @@ class _MessageCardState extends State<MessageCard> {
                     color: Colors.black,
                     size: 28,
                   ),
+                  SizedBox(width: 8),
                   Text("Update Message")
                 ],
               ),
               content: TextFormField(
                 initialValue: updatedMsg,
                 maxLines: null,
+                autofocus: true,
+                focusNode: _focusNode,
                 onChanged: (value) => updatedMsg = value,
                 decoration: InputDecoration(
                     border: OutlineInputBorder(
                         borderRadius: BorderRadius.circular(20))),
               ),
               actions: [
-                MaterialButton(
+                TextButton(
                     onPressed: () {
-                      Navigator.pop(context);
+                      Navigator.of(dialogContext).pop();
                     },
                     child: Text("Cancel")),
-                MaterialButton(
+                TextButton(
                     onPressed: () async {
-                      await APIs.updateMessage(widget.message, updatedMsg)
-                          .then((value) {
-                        Dialogs.showSnackbar(context, "Message updated");
-                        Navigator.pop(context);
-                      });
+                      try {
+                        // First close the dialog
+                        Navigator.of(dialogContext).pop();
+
+                        // Then update the message and show the snackbar
+                        await APIs.updateMessage(widget.message, updatedMsg);
+
+                        // Use mounted check before showing snackbar
+                        if (context.mounted) {
+                          Dialogs.showSnackbar(context, "Message updated");
+                        }
+                      } catch (e) {
+                        // If there's an error, show it using the parent context
+                        if (context.mounted) {
+                          Dialogs.showSnackbar(
+                              context, "Failed to update message: $e");
+                        }
+                      }
                     },
                     child: Text("Update"))
               ],
             ));
+
+    // Ensure keyboard shows up
+    Future.delayed(Duration(milliseconds: 100), () {
+      if (_focusNode.hasListeners) {
+        // Check if focusNode is still valid
+        _focusNode.requestFocus();
+      }
+    });
   }
 }
 

@@ -78,80 +78,83 @@ class APIs {
   }
 
   static Future<void> clearChatForSender(ChatUser chatUser) async {
-  try {
-    final chatRef = firestore.collection('chats/${getConversationID(chatUser.id)}/messages/');
-    final messagesSnapshot = await chatRef.get();
+    try {
+      final chatRef = firestore
+          .collection('chats/${getConversationID(chatUser.id)}/messages/');
+      final messagesSnapshot = await chatRef.get();
 
-    for (var doc in messagesSnapshot.docs) {
-      await doc.reference.delete();
+      for (var doc in messagesSnapshot.docs) {
+        await doc.reference.delete();
+      }
+
+      print('Chat cleared for sender successfully');
+    } catch (e) {
+      print('Error clearing chat for sender: $e');
     }
-
-    print('Chat cleared for sender successfully');
-  } catch (e) {
-    print('Error clearing chat for sender: $e');
   }
-}
 
-static Future<void> clearChatForBoth(ChatUser chatUser) async {
-  try {
-    final chatRef = firestore.collection('chats/${getConversationID(chatUser.id)}/messages/');
-    final messagesSnapshot = await chatRef.get();
+  static Future<void> clearChatForBoth(ChatUser chatUser) async {
+    try {
+      final chatRef = firestore
+          .collection('chats/${getConversationID(chatUser.id)}/messages/');
+      final messagesSnapshot = await chatRef.get();
 
-    for (var doc in messagesSnapshot.docs) {
-      await doc.reference.delete();
+      for (var doc in messagesSnapshot.docs) {
+        await doc.reference.delete();
+      }
+
+      await firestore
+          .collection('users')
+          .doc(user.uid)
+          .collection('my_users')
+          .doc(chatUser.id)
+          .delete();
+
+      await firestore
+          .collection('users')
+          .doc(chatUser.id)
+          .collection('my_users')
+          .doc(user.uid)
+          .delete();
+
+      print('Chat cleared for both sender and receiver successfully');
+    } catch (e) {
+      print('Error clearing chat for both: $e');
     }
-
-    await firestore.collection('users')
-        .doc(user.uid)
-        .collection('my_users')
-        .doc(chatUser.id)
-        .delete();
-
-    await firestore.collection('users')
-        .doc(chatUser.id)
-        .collection('my_users')
-        .doc(user.uid)
-        .delete();
-
-    print('Chat cleared for both sender and receiver successfully');
-  } catch (e) {
-    print('Error clearing chat for both: $e');
   }
-}
-
 
   static Future<void> deleteChat(ChatUser chatUser) async {
-  try {
-    // Get the reference to the chat collection
-    final chatRef = firestore.collection('chats/${getConversationID(chatUser.id)}/messages/');
+    try {
+      // Get the reference to the chat collection
+      final chatRef = firestore
+          .collection('chats/${getConversationID(chatUser.id)}/messages/');
 
-    // Get all messages in the chat and delete them
-    final messagesSnapshot = await chatRef.get();
-    for (var doc in messagesSnapshot.docs) {
-      await doc.reference.delete();
+      // Get all messages in the chat and delete them
+      final messagesSnapshot = await chatRef.get();
+      for (var doc in messagesSnapshot.docs) {
+        await doc.reference.delete();
+      }
+
+      // Remove user from 'my_users' subcollection
+      await firestore
+          .collection('users')
+          .doc(user.uid)
+          .collection('my_users')
+          .doc(chatUser.id)
+          .delete();
+
+      await firestore
+          .collection('users')
+          .doc(chatUser.id)
+          .collection('my_users')
+          .doc(user.uid)
+          .delete();
+
+      print('Chat deleted successfully');
+    } catch (e) {
+      print('Error deleting chat: $e');
     }
-
-    // Remove user from 'my_users' subcollection
-    await firestore.collection('users')
-        .doc(user.uid)
-        .collection('my_users')
-        .doc(chatUser.id)
-        .delete();
-
-    await firestore.collection('users')
-        .doc(chatUser.id)
-        .collection('my_users')
-        .doc(user.uid)
-        .delete();
-
-    print('Chat deleted successfully');
-  } catch (e) {
-    print('Error deleting chat: $e');
   }
-}
-
-
-  
 
   static Stream<QuerySnapshot<Map<String, dynamic>>> getMyUsersId() {
     return firestore
@@ -204,7 +207,8 @@ static Future<void> clearChatForBoth(ChatUser chatUser) async {
   }
 
   // Send encrypted message
-  static Future<void> sendMessage(ChatUser chatUser, String msg,Type type) async {
+  static Future<void> sendMessage(
+      ChatUser chatUser, String msg, Type type) async {
     final time = DateTime.now().millisecondsSinceEpoch.toString();
     final encryptedMsg = EncryptionUtil.encrypt(msg); // Encrypt message
 
@@ -244,33 +248,94 @@ static Future<void> clearChatForBoth(ChatUser chatUser) async {
     });
   }
 
-  static Future<void> deleteMessage(Message message) async {
-    final messageRef = firestore
-        .collection('chats/${getConversationID(message.toId)}/messages/')
-        .doc(message.sent);
+  // static Future<void> deleteMessage(Message message) async {
+  //   try {
+  //     // Delete from Firestore
+  //     final messageRef = firestore
+  //         .collection('chats/${getConversationID(message.toId)}/messages/')
+  //         .doc(message.sent);
 
-    if (message.type == 'image') {
-      await _deleteFromCloudinary(message.msg);
+  //     // If it's an image message, delete from Cloudinary first
+  //     if (message.type == Type.image) {
+  //       await _deleteFromCloudinary(message.msg);
+  //     }
+
+  //     // Then delete from Firestore
+  //     await messageRef.delete();
+  //   } catch (e) {
+  //     print('Error deleting message: $e');
+  //     throw e;
+  //   }
+  // }
+
+  static Future<void> _deleteFromCloudinary(String encryptedImageUrl) async {
+    try {
+      // Decrypt the image URL first
+      final decryptedImageUrl = EncryptionUtil.decrypt(encryptedImageUrl);
+      print(
+          'Attempting to delete image with decrypted URL: $decryptedImageUrl');
+
+      // Parse the URL to get the public ID
+      final Uri uri = Uri.parse(decryptedImageUrl);
+      final pathSegments = uri.pathSegments;
+
+      // Find 'upload' in the path and get the version and image path
+      final uploadIndex = pathSegments.indexOf('upload');
+      if (uploadIndex == -1 || uploadIndex + 2 >= pathSegments.length) {
+        throw Exception('Invalid Cloudinary URL format');
+      }
+
+      // Get the path after version (includes folder and filename)
+      final publicId = 'chatimages/' + pathSegments.last.split('.').first;
+      print('Public ID for deletion: $publicId');
+
+      final deleteUrl = 'https://api.cloudinary.com/v1_1/dshlsnsyt/destroy';
+
+      final response = await http.post(
+        Uri.parse(deleteUrl),
+        headers: {
+          'Content-Type': 'application/x-www-form-urlencoded',
+        },
+        body: {
+          'public_id': publicId,
+          'upload_preset': 'cipher',
+          'resource_type': 'image',
+          'invalidate': 'true'
+        },
+      );
+
+      print('Delete response status: ${response.statusCode}');
+      print('Delete response body: ${response.body}');
+
+      if (response.statusCode == 200) {
+        print('Successfully deleted image from Cloudinary');
+      } else {
+        print('Failed to delete from Cloudinary: ${response.body}');
+      }
+    } catch (e) {
+      print('Error while deleting from Cloudinary: $e');
     }
-
-    await messageRef.delete();
   }
 
-  static Future<void> _deleteFromCloudinary(String imageUrl) async {
-    final cloudinaryDeleteUrl =
-        'https://api.cloudinary.com/v1_1/dshlsnsyt/delete_by_token';
+  static Future<void> deleteMessage(Message message) async {
+    try {
+      if (message.type == Type.image) {
+        // For image messages, try to delete from Cloudinary first
+        final decryptedUrl = EncryptionUtil.decrypt(message.msg);
+        print('Deleting image message. Decrypted URL: $decryptedUrl');
+        await _deleteFromCloudinary(message.msg);
+      }
 
-    final response = await http.post(
-      Uri.parse(cloudinaryDeleteUrl),
-      body: {
-        'token': imageUrl
-      }, // Assuming Cloudinary allows deletion via token
-    );
+      // Delete from Firestore regardless of Cloudinary result
+      await firestore
+          .collection('chats/${getConversationID(message.toId)}/messages/')
+          .doc(message.sent)
+          .delete();
 
-    if (response.statusCode == 200) {
-      print('Image deleted from Cloudinary');
-    } else {
-      print('Failed to delete image from Cloudinary');
+      print('Message deleted from Firestore successfully');
+    } catch (e) {
+      print('Error deleting message: $e');
+      throw e;
     }
   }
 
