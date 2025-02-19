@@ -102,7 +102,7 @@ class _MessageCardState extends State<MessageCard> {
               padding:
                   EdgeInsets.all(widget.message.type == Type.text ? 10 : 9),
               decoration: BoxDecoration(
-                color: const Color(0xFFF8EB69B),
+                color: const Color.fromARGB(255, 222, 225, 229),
                 borderRadius: BorderRadius.only(
                   topLeft: Radius.circular(15),
                   topRight: Radius.circular(15),
@@ -190,7 +190,7 @@ class _MessageCardState extends State<MessageCard> {
               padding:
                   EdgeInsets.all(widget.message.type == Type.text ? 10 : 1),
               decoration: BoxDecoration(
-                color: const Color(0xFFF0B2B26),
+                color: const Color(0xFFF141517),
                 borderRadius: BorderRadius.only(
                   topLeft: Radius.circular(15),
                   topRight: Radius.circular(15),

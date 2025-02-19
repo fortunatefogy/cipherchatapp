@@ -136,7 +136,7 @@ class _HomeScreenState extends State<HomeScreen> {
         ),
         floatingActionButton: _selectedIndex == 0
             ? FloatingActionButton(
-                backgroundColor: const Color(0xFFF235347),
+                backgroundColor: const Color(0xFFF141517),
                 onPressed: _addChatUserDialog,
                 child: const Icon(Icons.add, color: Colors.white),
               )
@@ -163,8 +163,8 @@ class _HomeScreenState extends State<HomeScreen> {
           ],
         ),
         bottomNavigationBar: BottomNavigationBar(
-          backgroundColor: const Color.fromARGB(255, 241, 250, 244),
-          selectedItemColor: const Color(0xFFF235347),
+          backgroundColor: const Color(0xFFFF2F4F7),
+          selectedItemColor: const Color.fromARGB(255, 0, 0, 0),
           items: const [
             BottomNavigationBarItem(
               icon: Icon(Icons.chat),
@@ -196,7 +196,7 @@ class _HomeScreenState extends State<HomeScreen> {
               hintText: 'Search User',
               hintStyle: const TextStyle(color: Colors.black),
               filled: true,
-              fillColor: const Color(0xFFF8EB69B),
+              fillColor: const Color.fromARGB(255, 225, 228, 237),
               border: OutlineInputBorder(
                 borderRadius: BorderRadius.circular(30),
                 borderSide: BorderSide.none,
@@ -286,7 +286,7 @@ class _HomeScreenState extends State<HomeScreen> {
     showDialog(
       context: context,
       builder: (_) => AlertDialog(
-        backgroundColor: Color(0xffF8EB69B),
+        backgroundColor: Color(0xffFFF4F18),
         shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(50)),
         title: const Text(
           "Add User",
@@ -298,7 +298,8 @@ class _HomeScreenState extends State<HomeScreen> {
           decoration: InputDecoration(
             hintText: 'Enter email',
             hintStyle: const TextStyle(color: Colors.grey),
-            prefixIcon: const Icon(Icons.email, color: Color(0xffF235347)),
+            prefixIcon:
+                const Icon(Icons.email, color: Color.fromARGB(255, 0, 0, 0)),
             filled: true,
             fillColor: Colors.white,
             border: OutlineInputBorder(

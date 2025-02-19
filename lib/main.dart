@@ -68,7 +68,7 @@ class _MyAppState extends State<MyApp> with WidgetsBindingObserver {
             fontWeight: FontWeight.bold,
             fontSize: 28,
           ),
-          backgroundColor: Color(0xFFF235347),
+          backgroundColor: Color(0xFFFFF4F18),
         ),
       ),
       home: SplashScreen(),

@@ -31,7 +31,7 @@ class _ChatUserCardState extends State<ChatUserCard> {
       padding: const EdgeInsets.only(left: 6, right: 6),
       child: Card(
         margin: const EdgeInsets.symmetric(vertical: 5, horizontal: 10),
-        color: const Color(0xFFFDAF1DE),
+        color: const Color.fromARGB(255, 225, 228, 237),
         elevation: 1,
         shape: RoundedRectangleBorder(
           borderRadius: BorderRadius.circular(15),

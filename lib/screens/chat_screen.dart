@@ -253,7 +253,9 @@ class _ChatScreenState extends State<ChatScreen> {
                                 margin: const EdgeInsets.only(right: 5),
                                 decoration: BoxDecoration(
                                   shape: BoxShape.circle,
-                                  color: isOnline ? Colors.green : Colors.grey,
+                                  color: isOnline
+                                      ? const Color.fromARGB(255, 44, 227, 98)
+                                      : Colors.grey,
                                 ),
                               ),
                               Text(
@@ -261,8 +263,8 @@ class _ChatScreenState extends State<ChatScreen> {
                                     ? 'Online'
                                     : 'Last seen: ${_formatLastSeen(lastActive)}',
                                 style: const TextStyle(
-                                  fontSize: 12,
-                                  color: Colors.grey,
+                                  fontSize: 13,
+                                  color: Color.fromARGB(255, 255, 255, 255),
                                 ),
                               ),
                             ],
