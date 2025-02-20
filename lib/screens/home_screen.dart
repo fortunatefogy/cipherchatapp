@@ -163,7 +163,7 @@ class _HomeScreenState extends State<HomeScreen> {
           ],
         ),
         bottomNavigationBar: BottomNavigationBar(
-          backgroundColor: const Color(0xFFFF2F4F7),
+          backgroundColor: const Color.fromARGB(255, 225, 228, 237),
           selectedItemColor: const Color.fromARGB(255, 0, 0, 0),
           items: const [
             BottomNavigationBarItem(

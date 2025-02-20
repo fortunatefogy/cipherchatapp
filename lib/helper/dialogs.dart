@@ -16,7 +16,7 @@ class Dialogs {
       duration: Duration(seconds: 1),
       action: SnackBarAction(
         label: 'DISMISS',
-        textColor: Colors.yellow,
+        textColor: Colors.white,
         onPressed: () {
           // Code to execute.
         },

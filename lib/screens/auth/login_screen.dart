@@ -104,7 +104,8 @@ class _LoginScreenState extends State<LoginScreen> {
       body: Stack(
         children: [
           Container(
-            color: Color(0xFFF8EB69B), // Set the background color to blue
+            color: Color.fromARGB(
+                255, 246, 186, 126), // Set the background color to blue
           ),
           Positioned(
             top: mq.height * 0.20,

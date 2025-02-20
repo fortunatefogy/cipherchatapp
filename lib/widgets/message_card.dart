@@ -357,7 +357,7 @@ class _MessageCardState extends State<MessageCard> {
                   ),
                   name: widget.message.read.isEmpty
                       ? "Not seen yet"
-                      : "Read at :${MyDateUtil.getLastMessageTime(context: context, time: widget.message.read)}",
+                      : "Read at :${MyDateUtil.getFormattedTime(context: context, time: widget.message.read)}",
                   onTap: () {}),
               if (isMe)
                 _OptionItem(

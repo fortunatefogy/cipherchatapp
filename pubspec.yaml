@@ -32,6 +32,7 @@ dependencies:
   saver_gallery: ^4.0.1
   adaptive_theme: ^3.7.0
   flutter_dotenv: ^5.2.1
+  provider: ^6.1.2
 
 dev_dependencies:
   flutter_test:
