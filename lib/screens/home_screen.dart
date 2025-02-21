@@ -2,6 +2,7 @@
 import 'dart:typed_data';
 import 'dart:io';
 import 'package:cipher/api/apis.dart';
+import 'package:cipher/main.dart';
 import 'package:cipher/models/chat_user.dart';
 import 'package:cipher/screens/auth/login_screen.dart';
 import 'package:cipher/screens/profile_screen.dart';
@@ -12,6 +13,7 @@ import 'package:google_sign_in/google_sign_in.dart';
 import 'package:image_picker/image_picker.dart';
 import 'package:saver_gallery/saver_gallery.dart';
 import 'package:cipher/helper/dialogs.dart';
+import 'package:provider/provider.dart';
 
 class HomeScreen extends StatefulWidget {
   const HomeScreen({super.key});
@@ -24,7 +26,6 @@ class _HomeScreenState extends State<HomeScreen> {
   List<ChatUser> _list = [];
   final List<ChatUser> _searchList = [];
   bool _isSearching = false;
-  bool _isDarkMode = false;
   bool _isUserDataLoaded = false;
   final TextEditingController _searchController = TextEditingController();
   final GlobalKey _menuKey = GlobalKey();
@@ -47,6 +48,7 @@ class _HomeScreenState extends State<HomeScreen> {
   }
 
   void _showCustomMenu() {
+    final themeProvider = Provider.of<ThemeProvider>(context, listen: false);
     final RenderBox renderBox =
         _menuKey.currentContext!.findRenderObject() as RenderBox;
     final Offset position = renderBox.localToGlobal(Offset.zero);
@@ -66,18 +68,18 @@ class _HomeScreenState extends State<HomeScreen> {
           child: Row(
             children: [
               Icon(
-                _isDarkMode ? Icons.dark_mode : Icons.light_mode,
+                themeProvider.isDarkMode ? Icons.light_mode : Icons.dark_mode,
                 color: Colors.black87,
               ),
               const SizedBox(width: 10),
-              Text(_isDarkMode ? 'Light Mode' : 'Dark Mode'),
+              Text(themeProvider.isDarkMode ? 'Light Mode' : 'Dark Mode'),
             ],
           ),
         ),
-        PopupMenuItem(
+        const PopupMenuItem(
           value: 'logout',
           child: Row(
-            children: const [
+            children: [
               Icon(Icons.logout, color: Colors.black87),
               SizedBox(width: 10),
               Text('Logout'),
@@ -87,9 +89,7 @@ class _HomeScreenState extends State<HomeScreen> {
       ],
     ).then((value) {
       if (value == 'theme') {
-        setState(() {
-          _isDarkMode = !_isDarkMode;
-        });
+        themeProvider.toggleTheme();
       } else if (value == 'logout') {
         _logout();
       }
@@ -128,9 +128,9 @@ class _HomeScreenState extends State<HomeScreen> {
       return Scaffold(
         body: Center(
           child: Container(
-            width: 100, // Increased width
-            height: 100, // Increased height
-            decoration: BoxDecoration(
+            width: 100,
+            height: 100,
+            decoration: const BoxDecoration(
               color: Colors.white,
               shape: BoxShape.circle,
             ),
@@ -140,7 +140,7 @@ class _HomeScreenState extends State<HomeScreen> {
                 alignment: Alignment.center,
                 children: [
                   Image.asset(
-                    'assets/icon/icon.png', // Replace with your logo asset path
+                    'assets/icon/icon.png',
                     width: 40,
                     height: 40,
                   ),
@@ -312,7 +312,7 @@ class _HomeScreenState extends State<HomeScreen> {
     showDialog(
       context: context,
       builder: (_) => AlertDialog(
-        backgroundColor: Color(0xffFFF4F18),
+        backgroundColor: const Color(0xffFFF4F18),
         shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(50)),
         title: const Text(
           "Add User",
@@ -339,19 +339,15 @@ class _HomeScreenState extends State<HomeScreen> {
             ),
             focusedBorder: OutlineInputBorder(
               borderRadius: BorderRadius.circular(20),
-              borderSide: const BorderSide(
-                color: Color(0xffF235347),
-              ),
+              borderSide: const BorderSide(color: Color(0xffF235347)),
             ),
           ),
         ),
         actions: [
           TextButton(
-              onPressed: () => Navigator.pop(context),
-              child: const Text(
-                "Cancel",
-                style: TextStyle(color: Colors.black),
-              )),
+            onPressed: () => Navigator.pop(context),
+            child: const Text("Cancel", style: TextStyle(color: Colors.black)),
+          ),
           TextButton(
             onPressed: () async {
               Navigator.pop(context);
@@ -362,10 +358,7 @@ class _HomeScreenState extends State<HomeScreen> {
                 }
               }
             },
-            child: const Text(
-              "Add",
-              style: TextStyle(color: Colors.black),
-            ),
+            child: const Text("Add", style: TextStyle(color: Colors.black)),
           )
         ],
       ),
