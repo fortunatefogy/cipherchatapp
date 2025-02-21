@@ -235,6 +235,7 @@ class _ProfileScreenState extends State<ProfileScreen> {
                     height: mq.height * .03,
                   ),
                   TextFormField(
+                    
                     initialValue: widget.user.name,
                     onSaved: (val) => APIs.me.name = val ?? '',
                     validator: (val) => val != null && val.isNotEmpty

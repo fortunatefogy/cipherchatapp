@@ -25,6 +25,7 @@ class _HomeScreenState extends State<HomeScreen> {
   final List<ChatUser> _searchList = [];
   bool _isSearching = false;
   bool _isDarkMode = false;
+  bool _isUserDataLoaded = false;
   final TextEditingController _searchController = TextEditingController();
   final GlobalKey _menuKey = GlobalKey();
   final PageController _pageController = PageController();
@@ -33,9 +34,16 @@ class _HomeScreenState extends State<HomeScreen> {
   @override
   void initState() {
     super.initState();
-    APIs.getSelfInfo().then((_) {
-      setState(() {});
-    });
+    _loadUserData();
+  }
+
+  Future<void> _loadUserData() async {
+    await APIs.getSelfInfo();
+    if (mounted) {
+      setState(() {
+        _isUserDataLoaded = true;
+      });
+    }
   }
 
   void _showCustomMenu() {
@@ -116,6 +124,38 @@ class _HomeScreenState extends State<HomeScreen> {
 
   @override
   Widget build(BuildContext context) {
+    if (!_isUserDataLoaded) {
+      return Scaffold(
+        body: Center(
+          child: Container(
+            width: 100, // Increased width
+            height: 100, // Increased height
+            decoration: BoxDecoration(
+              color: Colors.white,
+              shape: BoxShape.circle,
+            ),
+            child: Padding(
+              padding: const EdgeInsets.all(20.0),
+              child: Stack(
+                alignment: Alignment.center,
+                children: [
+                  Image.asset(
+                    'assets/icon/icon.png', // Replace with your logo asset path
+                    width: 40,
+                    height: 40,
+                  ),
+                  const CircularProgressIndicator(
+                    valueColor: AlwaysStoppedAnimation<Color>(
+                        Color.fromARGB(255, 0, 0, 0)),
+                  ),
+                ],
+              ),
+            ),
+          ),
+        ),
+      );
+    }
+
     return GestureDetector(
       onTap: () => FocusScope.of(context).unfocus(),
       child: Scaffold(
@@ -126,7 +166,6 @@ class _HomeScreenState extends State<HomeScreen> {
           ),
           title: const Text('Cipher'),
           actions: [
-            // Menu button that shows dropdown below appbar
             IconButton(
               key: _menuKey,
               icon: const Icon(Icons.more_vert),
@@ -150,16 +189,7 @@ class _HomeScreenState extends State<HomeScreen> {
           },
           children: [
             _buildChatPage(),
-            FutureBuilder(
-              future: APIs.getSelfInfo(),
-              builder: (context, snapshot) {
-                if (snapshot.connectionState == ConnectionState.done) {
-                  return ProfileScreen(user: APIs.me);
-                } else {
-                  return const Center(child: CircularProgressIndicator());
-                }
-              },
-            ),
+            ProfileScreen(user: APIs.me),
           ],
         ),
         bottomNavigationBar: BottomNavigationBar(
@@ -186,7 +216,6 @@ class _HomeScreenState extends State<HomeScreen> {
     return Column(
       mainAxisSize: MainAxisSize.min,
       children: [
-        // Search Bar with updated style
         Padding(
           padding: const EdgeInsets.all(8.0),
           child: TextField(
@@ -227,8 +256,6 @@ class _HomeScreenState extends State<HomeScreen> {
             },
           ),
         ),
-
-        // Chat List
         Expanded(
           child: StreamBuilder(
             stream: APIs.getMyUsersId(),
@@ -254,7 +281,6 @@ class _HomeScreenState extends State<HomeScreen> {
                       data?.map((e) => ChatUser.fromJson(e.data())).toList() ??
                           [];
 
-                  // Sort users: Online users first, then offline ones
                   _list.sort((a, b) =>
                       (b.isOnline ? 1 : 0).compareTo(a.isOnline ? 1 : 0));
 

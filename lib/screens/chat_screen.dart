@@ -440,39 +440,55 @@ class _ChatScreenState extends State<ChatScreen> {
     return Padding(
       padding: const EdgeInsets.only(bottom: 17, left: 12, right: 12),
       child: Row(
+        crossAxisAlignment: CrossAxisAlignment.end,
         children: [
           Expanded(
             child: Card(
               shape: RoundedRectangleBorder(
-                  borderRadius: BorderRadius.circular(50)),
+                  borderRadius: BorderRadius.circular(45)),
               child: Row(
+                crossAxisAlignment: CrossAxisAlignment.end,
                 children: [
-                  IconButton(
-                    icon: const Icon(Icons.emoji_emotions_rounded,
-                        color: Colors.black),
-                    onPressed: () {
-                      FocusScope.of(context).unfocus();
-                      setState(() {
-                        _showEmoji = !_showEmoji;
-                      });
-                    },
+                  Padding(
+                    padding: const EdgeInsets.only(left: 7),
+                    child: IconButton(
+                      icon: const Icon(Icons.emoji_emotions_rounded,
+                          color: Colors.black),
+                      onPressed: () {
+                        FocusScope.of(context).unfocus();
+                        setState(() {
+                          _showEmoji = !_showEmoji;
+                        });
+                      },
+                    ),
                   ),
                   Expanded(
-                    child: TextField(
-                      controller: _textController,
-                      focusNode: _focusNode,
-                      keyboardType: TextInputType.multiline,
-                      maxLines: null,
-                      onTap: () {
-                        if (_showEmoji) {
-                          setState(() {
-                            _showEmoji = false;
-                          });
-                        }
-                      },
-                      decoration: const InputDecoration(
-                        border: InputBorder.none,
-                        hintText: 'Message',
+                    child: ConstrainedBox(
+                      constraints: const BoxConstraints(
+                        maxHeight: 150,
+                      ),
+                      child: Scrollbar(
+                        child: SingleChildScrollView(
+                          scrollDirection: Axis.vertical,
+                          reverse: true,
+                          child: TextField(
+                            controller: _textController,
+                            focusNode: _focusNode,
+                            keyboardType: TextInputType.multiline,
+                            maxLines: null,
+                            onTap: () {
+                              if (_showEmoji) {
+                                setState(() {
+                                  _showEmoji = false;
+                                });
+                              }
+                            },
+                            decoration: const InputDecoration(
+                              border: InputBorder.none,
+                              hintText: 'Message',
+                            ),
+                          ),
+                        ),
                       ),
                     ),
                   ),
@@ -495,24 +511,34 @@ class _ChatScreenState extends State<ChatScreen> {
                       }
                     },
                   ),
-                  IconButton(
-                    icon: const Icon(Icons.camera_alt_rounded,
-                        color: Colors.black),
-                    onPressed: () async {
-                      final ImagePicker picker = ImagePicker();
-                      final XFile? image =
-                          await picker.pickImage(source: ImageSource.camera);
-                      if (image != null) {
-                        setState(() {
-                          _isUploading = true;
-                        });
-                        setState(() {});
-                        await _uploadImageToCloudinary(
-                            File(image.path), widget.user);
-                        setState(() {
-                          _isUploading = false;
-                        });
+                  ValueListenableBuilder<TextEditingValue>(
+                    valueListenable: _textController,
+                    builder: (context, value, _) {
+                      if (value.text.isEmpty) {
+                        return Padding(
+                          padding: const EdgeInsets.only(right: 7),
+                          child: IconButton(
+                            icon: const Icon(Icons.camera_alt_rounded,
+                                color: Colors.black),
+                            onPressed: () async {
+                              final ImagePicker picker = ImagePicker();
+                              final XFile? image = await picker.pickImage(
+                                  source: ImageSource.camera);
+                              if (image != null) {
+                                setState(() {
+                                  _isUploading = true;
+                                });
+                                await _uploadImageToCloudinary(
+                                    File(image.path), widget.user);
+                                setState(() {
+                                  _isUploading = false;
+                                });
+                              }
+                            },
+                          ),
+                        );
                       }
+                      return const SizedBox.shrink();
                     },
                   ),
                   const SizedBox(width: 5),
@@ -520,24 +546,27 @@ class _ChatScreenState extends State<ChatScreen> {
               ),
             ),
           ),
-          MaterialButton(
-            onPressed: () {
-              if (_textController.text.isNotEmpty) {
-                if (_list.isEmpty) {
-                  APIs.sendFirstMessage(
-                      widget.user, _textController.text, Type.text);
-                } else {
-                  APIs.sendMessage(
-                      widget.user, _textController.text, Type.text);
-                  _textController.clear();
+          Padding(
+            padding: const EdgeInsets.only(bottom: 6, left: 5, right: 5),
+            child: MaterialButton(
+              onPressed: () {
+                if (_textController.text.isNotEmpty) {
+                  if (_list.isEmpty) {
+                    APIs.sendFirstMessage(
+                        widget.user, _textController.text, Type.text);
+                  } else {
+                    APIs.sendMessage(
+                        widget.user, _textController.text, Type.text);
+                    _textController.clear();
+                  }
                 }
-              }
-            },
-            minWidth: 0,
-            color: Colors.grey.shade300,
-            padding: const EdgeInsets.all(10),
-            shape: const CircleBorder(),
-            child: const Icon(Icons.send, color: Colors.black),
+              },
+              minWidth: 0,
+              color: Colors.grey.shade300,
+              padding: const EdgeInsets.all(10),
+              shape: const CircleBorder(),
+              child: const Icon(Icons.send, color: Colors.black),
+            ),
           ),
         ],
       ),
