@@ -70,18 +70,21 @@ class _HomeScreenState extends State<HomeScreen> {
             children: [
               Icon(
                 themeProvider.isDarkMode ? Icons.light_mode : Icons.dark_mode,
-                color: Colors.black87,
+                color: Theme.of(context).iconTheme.color,
               ),
               const SizedBox(width: 10),
               Text(themeProvider.isDarkMode ? 'Light Mode' : 'Dark Mode'),
             ],
           ),
         ),
-        const PopupMenuItem(
+        PopupMenuItem(
           value: 'logout',
           child: Row(
             children: [
-              Icon(Icons.logout, color: Colors.black87),
+              Icon(
+                Icons.logout,
+                color: Theme.of(context).iconTheme.color,
+              ),
               SizedBox(width: 10),
               Text('Logout'),
             ],
@@ -125,6 +128,8 @@ class _HomeScreenState extends State<HomeScreen> {
 
   @override
   Widget build(BuildContext context) {
+    final themeProvider = Provider.of<ThemeProvider>(context);
+
     if (!_isUserDataLoaded) {
       return Scaffold(
         body: Center(
@@ -176,7 +181,9 @@ class _HomeScreenState extends State<HomeScreen> {
         ),
         floatingActionButton: _selectedIndex == 0
             ? FloatingActionButton(
-                backgroundColor: const Color(0xFFF141517),
+                backgroundColor: themeProvider.isDarkMode
+                    ? const Color(0xFF2C2C2C)
+                    : const Color(0xFFF141517),
                 onPressed: _addChatUserDialog,
                 child: const Icon(Icons.add, color: Colors.white),
               )
@@ -194,8 +201,13 @@ class _HomeScreenState extends State<HomeScreen> {
           ],
         ),
         bottomNavigationBar: BottomNavigationBar(
-          backgroundColor: const Color.fromARGB(255, 225, 228, 237),
-          selectedItemColor: const Color.fromARGB(255, 0, 0, 0),
+          backgroundColor: themeProvider.isDarkMode
+              ? const Color(0xFF2C2C2C)
+              : const Color.fromARGB(255, 225, 228, 237),
+          selectedItemColor: themeProvider.isDarkMode
+              ? Colors.white
+              : const Color.fromARGB(255, 0, 0, 0),
+          unselectedItemColor: Colors.grey,
           items: const [
             BottomNavigationBarItem(
               icon: Icon(Icons.chat),
@@ -214,6 +226,7 @@ class _HomeScreenState extends State<HomeScreen> {
   }
 
   Widget _buildChatPage() {
+    final themeProvider = Provider.of<ThemeProvider>(context);
     return Column(
       mainAxisSize: MainAxisSize.min,
       children: [
@@ -221,20 +234,35 @@ class _HomeScreenState extends State<HomeScreen> {
           padding: const EdgeInsets.all(8.0),
           child: TextField(
             controller: _searchController,
-            style: const TextStyle(color: Colors.black),
+            style: TextStyle(
+              color: themeProvider.isDarkMode ? Colors.white : Colors.black,
+            ),
             decoration: InputDecoration(
               hintText: 'Search User',
-              hintStyle: const TextStyle(color: Colors.black),
+              hintStyle: TextStyle(
+                color:
+                    themeProvider.isDarkMode ? Colors.white54 : Colors.black54,
+              ),
               filled: true,
-              fillColor: const Color.fromARGB(255, 225, 228, 237),
+              fillColor: themeProvider.isDarkMode
+                  ? const Color(0xFF2C2C2C)
+                  : const Color.fromARGB(255, 225, 228, 237),
               border: OutlineInputBorder(
                 borderRadius: BorderRadius.circular(30),
                 borderSide: BorderSide.none,
               ),
-              prefixIcon: const Icon(Icons.search, color: Colors.black),
+              prefixIcon: Icon(
+                Icons.search,
+                color: themeProvider.isDarkMode ? Colors.white : Colors.black,
+              ),
               suffixIcon: _isSearching
                   ? IconButton(
-                      icon: const Icon(Icons.cancel, color: Colors.black),
+                      icon: Icon(
+                        Icons.cancel,
+                        color: themeProvider.isDarkMode
+                            ? Colors.white
+                            : Colors.black,
+                      ),
                       onPressed: () {
                         setState(() {
                           _searchController.clear();
@@ -309,45 +337,75 @@ class _HomeScreenState extends State<HomeScreen> {
   }
 
   void _addChatUserDialog() {
+    final themeProvider = Provider.of<ThemeProvider>(context, listen: false);
     String email = '';
     showDialog(
       context: context,
       builder: (_) => AlertDialog(
-        backgroundColor: const Color(0xffFFF4F18),
-        shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(50)),
-        title: const Text(
+        backgroundColor: themeProvider.isDarkMode
+            ? ThemeProvider.darkTheme.dialogBackgroundColor
+            : ThemeProvider.lightTheme.dialogBackgroundColor,
+        shape: RoundedRectangleBorder(
+          borderRadius: BorderRadius.circular(50),
+        ),
+        title: Text(
           "Add User",
-          style: TextStyle(fontWeight: FontWeight.bold, color: Colors.black),
+          style: TextStyle(
+            fontWeight: FontWeight.bold,
+            color: themeProvider.isDarkMode ? Colors.white : Colors.black,
+          ),
         ),
         content: TextFormField(
           onChanged: (value) => email = value,
-          style: const TextStyle(color: Colors.black),
+          style: TextStyle(
+            color: themeProvider.isDarkMode ? Colors.white : Colors.black,
+          ),
           decoration: InputDecoration(
             hintText: 'Enter email',
-            hintStyle: const TextStyle(color: Colors.grey),
-            prefixIcon:
-                const Icon(Icons.email, color: Color.fromARGB(255, 0, 0, 0)),
+            hintStyle: TextStyle(
+              color: themeProvider.isDarkMode ? Colors.grey : Colors.black,
+            ),
+            prefixIcon: Icon(
+              Icons.email,
+              color: themeProvider.isDarkMode
+                  ? Colors.white
+                  : const Color.fromARGB(255, 0, 0, 0),
+            ),
             filled: true,
-            fillColor: Colors.white,
+            fillColor: themeProvider.isDarkMode
+                ? const Color(0xFF2C2C2C)
+                : Colors.white,
             border: OutlineInputBorder(
               borderRadius: BorderRadius.circular(20),
               borderSide: BorderSide.none,
             ),
             enabledBorder: OutlineInputBorder(
               borderRadius: BorderRadius.circular(20),
-              borderSide:
-                  const BorderSide(color: Color.fromARGB(255, 255, 255, 255)),
+              borderSide: BorderSide(
+                color: themeProvider.isDarkMode
+                    ? const Color.fromARGB(255, 255, 255, 255)
+                    : const Color.fromARGB(255, 0, 0, 0),
+              ),
             ),
             focusedBorder: OutlineInputBorder(
               borderRadius: BorderRadius.circular(20),
-              borderSide: const BorderSide(color: Color(0xffF235347)),
+              borderSide: BorderSide(
+                color: themeProvider.isDarkMode
+                    ? const Color(0xffF235347)
+                    : const Color(0xffF235347),
+              ),
             ),
           ),
         ),
         actions: [
           TextButton(
             onPressed: () => Navigator.pop(context),
-            child: const Text("Cancel", style: TextStyle(color: Colors.black)),
+            child: Text(
+              "Cancel",
+              style: TextStyle(
+                color: themeProvider.isDarkMode ? Colors.white : Colors.black,
+              ),
+            ),
           ),
           TextButton(
             onPressed: () async {
@@ -359,8 +417,13 @@ class _HomeScreenState extends State<HomeScreen> {
                 }
               }
             },
-            child: const Text("Add", style: TextStyle(color: Colors.black)),
-          )
+            child: Text(
+              "Add",
+              style: TextStyle(
+                color: themeProvider.isDarkMode ? Colors.white : Colors.black,
+              ),
+            ),
+          ),
         ],
       ),
     );

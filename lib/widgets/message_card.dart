@@ -290,7 +290,7 @@ class _MessageCardState extends State<MessageCard> {
                 margin:
                     const EdgeInsets.symmetric(vertical: 10, horizontal: 100),
                 decoration: BoxDecoration(
-                  color: Colors.black,
+                  color: Theme.of(context).dividerColor,
                   borderRadius: BorderRadius.circular(15),
                 ),
               ),
@@ -298,7 +298,7 @@ class _MessageCardState extends State<MessageCard> {
                   ? _OptionItem(
                       icon: Icon(
                         Icons.copy,
-                        color: Colors.black,
+                        color: Theme.of(context).iconTheme.color,
                         size: 26,
                       ),
                       name: "Copy Message",
@@ -314,7 +314,7 @@ class _MessageCardState extends State<MessageCard> {
                   : _OptionItem(
                       icon: Icon(
                         Icons.download,
-                        color: Colors.black,
+                        color: Theme.of(context).iconTheme.color,
                         size: 26,
                       ),
                       name: "Download Image",
@@ -328,7 +328,7 @@ class _MessageCardState extends State<MessageCard> {
                 _OptionItem(
                     icon: Icon(
                       Icons.edit,
-                      color: Colors.black,
+                      color: Theme.of(context).iconTheme.color,
                       size: 26,
                     ),
                     name: "Edit Message",
@@ -343,7 +343,7 @@ class _MessageCardState extends State<MessageCard> {
               _OptionItem(
                   icon: Icon(
                     Icons.send,
-                    color: Colors.black,
+                    color: Theme.of(context).iconTheme.color,
                     size: 26,
                   ),
                   name:
@@ -352,7 +352,7 @@ class _MessageCardState extends State<MessageCard> {
               _OptionItem(
                   icon: Icon(
                     Icons.remove_red_eye,
-                    color: Colors.black,
+                    color: Theme.of(context).iconTheme.color,
                     size: 26,
                   ),
                   name: widget.message.read.isEmpty
@@ -393,7 +393,7 @@ class _MessageCardState extends State<MessageCard> {
                 children: [
                   Icon(
                     Icons.message,
-                    color: Colors.black,
+                    color: Theme.of(context).iconTheme.color,
                     size: 28,
                   ),
                   SizedBox(width: 8),

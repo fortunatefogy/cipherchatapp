@@ -5,6 +5,8 @@ import 'package:flutter/material.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'dart:async';
 import 'package:flutter/services.dart';
+import 'package:provider/provider.dart';
+import 'package:cipher/api/theme_provider.dart';
 
 class SplashScreen extends StatefulWidget {
   @override
@@ -45,8 +47,10 @@ class _SplashScreenState extends State<SplashScreen> {
 
   @override
   Widget build(BuildContext context) {
+    final themeProvider = Provider.of<ThemeProvider>(context);
+
     return Scaffold(
-      backgroundColor: Color(0xffFffffff), // Set background color to blue
+      backgroundColor: themeProvider.isDarkMode ? Colors.black : Colors.white,
       body: Center(
         child: Column(
           mainAxisAlignment: MainAxisAlignment.center,
@@ -64,7 +68,9 @@ class _SplashScreenState extends State<SplashScreen> {
                 style: TextStyle(
                   fontSize: 40.0,
                   fontWeight: FontWeight.bold,
-                  color: const Color.fromARGB(255, 34, 36, 37),
+                  color: themeProvider.isDarkMode
+                      ? Colors.white
+                      : const Color.fromARGB(255, 34, 36, 37),
                 ),
               ),
             ),

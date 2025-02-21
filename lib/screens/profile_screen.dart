@@ -9,6 +9,8 @@ import 'package:flutter_svg/svg.dart';
 import 'package:image_picker/image_picker.dart';
 import 'package:http/http.dart' as http;
 import 'package:cached_network_image/cached_network_image.dart';
+import 'package:provider/provider.dart';
+import 'package:cipher/api/theme_provider.dart';
 
 class ProfileScreen extends StatefulWidget {
   final ChatUser user;
@@ -91,6 +93,7 @@ class _ProfileScreenState extends State<ProfileScreen> {
 
   @override
   Widget build(BuildContext context) {
+    final themeProvider = Provider.of<ThemeProvider>(context);
     print(
         'Current Profile Picture URL: ${widget.user.image}'); // Print current profile picture URL
 
@@ -99,33 +102,6 @@ class _ProfileScreenState extends State<ProfileScreen> {
         FocusScope.of(context).unfocus();
       },
       child: Scaffold(
-        // appBar: AppBar(
-        //   leading: Padding(
-        //     padding: const EdgeInsets.all(6.0),
-        //     child: Image.asset('assets/icon/icon.png'),
-        //   ),
-        //   title: const Text('Cipher'),
-        //   actions: [
-        //     IconButton(
-        //       icon: const Icon(Icons.logout, color: Colors.black),
-        //       onPressed: () async {
-        //         Dialogs.showProgressBar(context);
-        //         await APIs.auth.signOut().then(
-        //           (value) async {
-        //             await GoogleSignIn().signOut().then((value) {
-        //               Navigator.pop(context);
-        //               Navigator.pop(context);
-        //             });
-        //           },
-        //         );
-        //         Navigator.pushReplacement(
-        //           context,
-        //           MaterialPageRoute(builder: (context) => const LoginScreen()),
-        //         );
-        //       },
-        //     ),
-        //   ],
-        // ),
         body: Form(
           key: _formKey,
           child: Padding(
@@ -175,10 +151,16 @@ class _ProfileScreenState extends State<ProfileScreen> {
                                           top: 10,
                                           right: 10,
                                           child: CircleAvatar(
-                                            backgroundColor: Colors.white,
+                                            backgroundColor:
+                                                themeProvider.isDarkMode
+                                                    ? Colors.black
+                                                    : Colors.white,
                                             child: IconButton(
-                                              icon: const Icon(Icons.close,
-                                                  color: Colors.black),
+                                              icon: Icon(Icons.close,
+                                                  color:
+                                                      themeProvider.isDarkMode
+                                                          ? Colors.white
+                                                          : Colors.black),
                                               onPressed: () {
                                                 Navigator.of(context).pop();
                                               },
@@ -220,8 +202,15 @@ class _ProfileScreenState extends State<ProfileScreen> {
                               _showBottomSheet(context);
                             },
                             shape: const CircleBorder(),
-                            color: Colors.white,
-                            child: Icon(Icons.edit)),
+                            color: themeProvider.isDarkMode
+                                ? Colors.black
+                                : Colors.white,
+                            child: Icon(
+                              Icons.edit,
+                              color: themeProvider.isDarkMode
+                                  ? Colors.white
+                                  : Colors.black,
+                            )),
                       )
                     ],
                   ),
@@ -229,13 +218,16 @@ class _ProfileScreenState extends State<ProfileScreen> {
                     height: mq.height * .03,
                   ),
                   Text(widget.user.email,
-                      style:
-                          const TextStyle(color: Colors.black, fontSize: 20)),
+                      style: TextStyle(
+                        color: themeProvider.isDarkMode
+                            ? Colors.white
+                            : Colors.black,
+                        fontSize: 20,
+                      )),
                   SizedBox(
                     height: mq.height * .03,
                   ),
                   TextFormField(
-                    
                     initialValue: widget.user.name,
                     onSaved: (val) => APIs.me.name = val ?? '',
                     validator: (val) => val != null && val.isNotEmpty
@@ -279,13 +271,17 @@ class _ProfileScreenState extends State<ProfileScreen> {
                       }
                     },
                     style: ElevatedButton.styleFrom(
-                      backgroundColor: Colors.black, // Background color
+                      backgroundColor: themeProvider.isDarkMode
+                          ? Colors.white
+                          : Colors.black, // Background color
                       elevation: 3, // Elevation
                     ),
-                    child: const Text(
+                    child: Text(
                       'Update',
                       style: TextStyle(
-                        color: Colors.white, // Font color
+                        color: themeProvider.isDarkMode
+                            ? Colors.black
+                            : Colors.white, // Font color
                         fontSize: 20, // Font size
                       ),
                     ),
@@ -303,6 +299,7 @@ class _ProfileScreenState extends State<ProfileScreen> {
   }
 
   void _showBottomSheet(BuildContext context) {
+    final themeProvider = Provider.of<ThemeProvider>(context, listen: false);
     showModalBottomSheet(
       context: context,
       shape: RoundedRectangleBorder(
@@ -317,7 +314,11 @@ class _ProfileScreenState extends State<ProfileScreen> {
             children: [
               Text(
                 "Pick Profile Picture",
-                style: TextStyle(fontSize: 20, fontWeight: FontWeight.bold),
+                style: TextStyle(
+                  fontSize: 20,
+                  fontWeight: FontWeight.bold,
+                  color: themeProvider.isDarkMode ? Colors.white : Colors.black,
+                ),
               ),
               Column(
                 mainAxisAlignment: MainAxisAlignment.center,
@@ -325,7 +326,9 @@ class _ProfileScreenState extends State<ProfileScreen> {
                   ElevatedButton(
                     style: ElevatedButton.styleFrom(
                       shape: CircleBorder(),
-                      backgroundColor: Colors.white,
+                      backgroundColor: themeProvider.isDarkMode
+                          ? Colors.black
+                          : Colors.white,
                       padding: EdgeInsets.all(10), // Background color
                       elevation: 5,
                     ),
@@ -345,11 +348,20 @@ class _ProfileScreenState extends State<ProfileScreen> {
                       'assets/icon/camera.svg', // SVG file
                       width: 60, // Adjust size
                       height: 60,
+                      color: themeProvider.isDarkMode
+                          ? Colors.white
+                          : Colors.black,
                     ),
                   ),
-                  const Text(
+                  Text(
                     'Camera',
-                    style: TextStyle(fontSize: 16, fontWeight: FontWeight.bold),
+                    style: TextStyle(
+                      fontSize: 16,
+                      fontWeight: FontWeight.bold,
+                      color: themeProvider.isDarkMode
+                          ? Colors.white
+                          : Colors.black,
+                    ),
                   ),
                 ],
               ),
@@ -359,7 +371,9 @@ class _ProfileScreenState extends State<ProfileScreen> {
                   ElevatedButton(
                     style: ElevatedButton.styleFrom(
                       shape: CircleBorder(),
-                      backgroundColor: Colors.white,
+                      backgroundColor: themeProvider.isDarkMode
+                          ? Colors.black
+                          : Colors.white,
                       padding: EdgeInsets.all(10), // Background color
                       elevation: 5,
                     ),
@@ -380,11 +394,20 @@ class _ProfileScreenState extends State<ProfileScreen> {
                       'assets/icon/gallery.svg', // SVG file
                       width: 60,
                       height: 60,
+                      color: themeProvider.isDarkMode
+                          ? Colors.white
+                          : Colors.black,
                     ),
                   ),
-                  const Text(
+                  Text(
                     'Gallery',
-                    style: TextStyle(fontSize: 16, fontWeight: FontWeight.bold),
+                    style: TextStyle(
+                      fontSize: 16,
+                      fontWeight: FontWeight.bold,
+                      color: themeProvider.isDarkMode
+                          ? Colors.white
+                          : Colors.black,
+                    ),
                   ),
                 ],
               ),

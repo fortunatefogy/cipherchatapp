@@ -229,7 +229,7 @@ class APIs {
     await firestore
         .collection('chats/${getConversationID(message.fromId)}/messages/')
         .doc(message.sent)
-        .update({'read': DateTime.now().microsecondsSinceEpoch.toString()});
+        .update({'read': DateTime.now().millisecondsSinceEpoch.toString()});
   }
 
   static Stream<QuerySnapshot<Map<String, dynamic>>> getLastMessage(

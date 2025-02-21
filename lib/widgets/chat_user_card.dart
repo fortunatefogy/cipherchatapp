@@ -36,7 +36,7 @@ class _ChatUserCardState extends State<ChatUserCard> {
       child: Card(
         margin: const EdgeInsets.symmetric(vertical: 5, horizontal: 10),
         color: themeProvider.isDarkMode
-            ? const Color.fromARGB(255, 225, 228, 237)
+            ? const Color(0xFF2C2C2C)
             : const Color.fromARGB(255, 225, 228, 237),
         elevation: 1,
         shape: RoundedRectangleBorder(
@@ -160,7 +160,10 @@ class _ChatUserCardState extends State<ChatUserCard> {
                 title: Text(
                   widget.user.name,
                   maxLines: 1,
-                  style: themeProvider.chatCardTextStyle,
+                  style: themeProvider.chatCardTextStyle.copyWith(
+                    color:
+                        themeProvider.isDarkMode ? Colors.white : Colors.black,
+                  ),
                 ),
                 subtitle: Column(
                   crossAxisAlignment: CrossAxisAlignment.start,
@@ -205,8 +208,12 @@ class _ChatUserCardState extends State<ChatUserCard> {
                         : Text(
                             MyDateUtil.getLastMessageTime(
                                 context: context, time: _message!.sent),
-                            style: const TextStyle(
-                                color: Colors.black, fontSize: 12),
+                            style: themeProvider.chatCardTextStyle.copyWith(
+                              fontSize: 12,
+                              color: themeProvider.isDarkMode
+                                  ? Colors.white
+                                  : Colors.black,
+                            ),
                           ),
               );
             },

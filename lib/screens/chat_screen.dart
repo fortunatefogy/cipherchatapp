@@ -12,6 +12,8 @@ import 'package:emoji_picker_flutter/emoji_picker_flutter.dart';
 import 'package:flutter/material.dart';
 import 'package:image_picker/image_picker.dart';
 import 'package:http/http.dart' as http;
+import 'package:provider/provider.dart';
+import 'package:cipher/api/theme_provider.dart';
 
 class ChatScreen extends StatefulWidget {
   final ChatUser user;
@@ -135,6 +137,7 @@ class _ChatScreenState extends State<ChatScreen> {
 
   @override
   Widget build(BuildContext context) {
+    final themeProvider = Provider.of<ThemeProvider>(context);
     return WillPopScope(
       onWillPop: _onWillPop,
       child: Container(
@@ -147,8 +150,9 @@ class _ChatScreenState extends State<ChatScreen> {
               )
             : null,
         child: Scaffold(
-          backgroundColor: _wallpaperPath != null ? Colors.transparent : null,
-          // resizeToAvoidBottomInset: false,
+          backgroundColor: _wallpaperPath != null
+              ? Colors.transparent
+              : themeProvider.themeData.scaffoldBackgroundColor,
           appBar: AppBar(
             title: Row(
               children: [
@@ -207,7 +211,9 @@ class _ChatScreenState extends State<ChatScreen> {
                                 const SizedBox(height: 20),
                                 ElevatedButton(
                                   style: ElevatedButton.styleFrom(
-                                    backgroundColor: Colors.black,
+                                    backgroundColor: themeProvider.isDarkMode
+                                        ? Colors.black
+                                        : Colors.white,
                                   ),
                                   onPressed: () {
                                     Navigator.of(context).pop();
@@ -262,17 +268,24 @@ class _ChatScreenState extends State<ChatScreen> {
                                 isOnline
                                     ? 'Online'
                                     : 'Last seen: ${_formatLastSeen(lastActive)}',
-                                style: const TextStyle(
+                                style: TextStyle(
                                   fontSize: 13,
-                                  color: Color.fromARGB(255, 255, 255, 255),
+                                  color: themeProvider.isDarkMode
+                                      ? Colors.white
+                                      : Colors.black,
                                 ),
                               ),
                             ],
                           );
                         }
-                        return const Text(
+                        return Text(
                           'Last seen: loading...',
-                          style: TextStyle(fontSize: 12),
+                          style: TextStyle(
+                            fontSize: 12,
+                            color: themeProvider.isDarkMode
+                                ? Colors.white
+                                : Colors.black,
+                          ),
                         );
                       },
                     ),
@@ -296,17 +309,12 @@ class _ChatScreenState extends State<ChatScreen> {
                             TextButton(
                               onPressed: () {
                                 APIs.clearChatForSender(widget.user);
-                                // Add your clear chat for you logic here
-                                print('Clear chat for you selected');
                                 Navigator.of(context).pop();
                               },
                               child: const Text('Clear Chat'),
                             ),
                             TextButton(
                               onPressed: () {
-                                // APIs.clearChatForBoth(widget.user);
-                                // Add your clear chat for both logic here
-                                // print('Clear chat for both selected');
                                 Navigator.of(context).pop();
                               },
                               child: const Text('Cancel'),
@@ -322,8 +330,6 @@ class _ChatScreenState extends State<ChatScreen> {
                         .then((image) async {
                       if (image != null) {
                         await _setWallpaper(image.path);
-                        // Save the selected image path to shared preferences or any storage
-                        // and use it to set the background wallpaper
                         print('Wallpaper selected: ${image.path}');
                       }
                     });
@@ -391,8 +397,13 @@ class _ChatScreenState extends State<ChatScreen> {
                 Align(
                   alignment: Alignment.centerRight,
                   child: Padding(
-                    padding: EdgeInsets.symmetric(vertical: 8, horizontal: 16),
-                    child: CircularProgressIndicator(),
+                    padding:
+                        const EdgeInsets.symmetric(vertical: 8, horizontal: 16),
+                    child: CircularProgressIndicator(
+                      valueColor: AlwaysStoppedAnimation<Color>(
+                        themeProvider.isDarkMode ? Colors.white : Colors.black,
+                      ),
+                    ),
                   ),
                 ),
               _chatInput(),
@@ -437,6 +448,7 @@ class _ChatScreenState extends State<ChatScreen> {
   }
 
   Widget _chatInput() {
+    final themeProvider = Provider.of<ThemeProvider>(context);
     return Padding(
       padding: const EdgeInsets.only(bottom: 17, left: 12, right: 12),
       child: Row(
@@ -444,6 +456,9 @@ class _ChatScreenState extends State<ChatScreen> {
         children: [
           Expanded(
             child: Card(
+              color: themeProvider.isDarkMode
+                  ? Colors.grey.shade800
+                  : Colors.grey.shade300,
               shape: RoundedRectangleBorder(
                   borderRadius: BorderRadius.circular(45)),
               child: Row(
@@ -452,8 +467,10 @@ class _ChatScreenState extends State<ChatScreen> {
                   Padding(
                     padding: const EdgeInsets.only(left: 7),
                     child: IconButton(
-                      icon: const Icon(Icons.emoji_emotions_rounded,
-                          color: Colors.black),
+                      icon: Icon(Icons.emoji_emotions_rounded,
+                          color: themeProvider.isDarkMode
+                              ? Colors.white
+                              : Colors.black),
                       onPressed: () {
                         FocusScope.of(context).unfocus();
                         setState(() {
@@ -493,7 +510,10 @@ class _ChatScreenState extends State<ChatScreen> {
                     ),
                   ),
                   IconButton(
-                    icon: const Icon(Icons.image_rounded, color: Colors.black),
+                    icon: Icon(Icons.image_rounded,
+                        color: themeProvider.isDarkMode
+                            ? Colors.white
+                            : Colors.black),
                     onPressed: () async {
                       print('Image URL: ${widget.user.image}');
                       final ImagePicker picker = ImagePicker();
@@ -518,8 +538,10 @@ class _ChatScreenState extends State<ChatScreen> {
                         return Padding(
                           padding: const EdgeInsets.only(right: 7),
                           child: IconButton(
-                            icon: const Icon(Icons.camera_alt_rounded,
-                                color: Colors.black),
+                            icon: Icon(Icons.camera_alt_rounded,
+                                color: themeProvider.isDarkMode
+                                    ? Colors.white
+                                    : Colors.black),
                             onPressed: () async {
                               final ImagePicker picker = ImagePicker();
                               final XFile? image = await picker.pickImage(
@@ -562,10 +584,14 @@ class _ChatScreenState extends State<ChatScreen> {
                 }
               },
               minWidth: 0,
-              color: Colors.grey.shade300,
+              color: themeProvider.isDarkMode
+                  ? Colors.grey.shade800
+                  : Colors.grey.shade300,
               padding: const EdgeInsets.all(10),
               shape: const CircleBorder(),
-              child: const Icon(Icons.send, color: Colors.black),
+              child: Icon(Icons.send,
+                  color:
+                      themeProvider.isDarkMode ? Colors.white : Colors.black),
             ),
           ),
         ],
