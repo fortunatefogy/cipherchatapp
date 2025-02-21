@@ -1,11 +1,13 @@
 import 'package:cached_network_image/cached_network_image.dart';
 import 'package:cipher/api/apis.dart';
+import 'package:cipher/api/theme_provider.dart';
 import 'package:cipher/helper/my_date_util.dart';
 import 'package:cipher/models/chat_user.dart';
 import 'package:cipher/models/message.dart';
 import 'package:cipher/screens/chat_screen.dart';
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
+import 'package:provider/provider.dart';
 
 class ChatUserCard extends StatefulWidget {
   final ChatUser user;
@@ -27,11 +29,15 @@ class _ChatUserCardState extends State<ChatUserCard> {
 
   @override
   Widget build(BuildContext context) {
+    final themeProvider = Provider.of<ThemeProvider>(context);
+
     return Padding(
       padding: const EdgeInsets.only(left: 6, right: 6),
       child: Card(
         margin: const EdgeInsets.symmetric(vertical: 5, horizontal: 10),
-        color: const Color.fromARGB(255, 225, 228, 237),
+        color: themeProvider.isDarkMode
+            ? const Color.fromARGB(255, 225, 228, 237)
+            : const Color.fromARGB(255, 225, 228, 237),
         elevation: 1,
         shape: RoundedRectangleBorder(
           borderRadius: BorderRadius.circular(15),
@@ -62,13 +68,6 @@ class _ChatUserCardState extends State<ChatUserCard> {
                       },
                       child: const Text("Delete Chat"),
                     ),
-                    // TextButton(
-                    //   onPressed: () {
-                    //     // Perform mute action
-                    //     Navigator.pop(context);
-                    //   },
-                    //   child: const Text("Mute Notifications"),
-                    // ),
                     TextButton(
                       onPressed: () {
                         Navigator.pop(context);
@@ -161,6 +160,7 @@ class _ChatUserCardState extends State<ChatUserCard> {
                 title: Text(
                   widget.user.name,
                   maxLines: 1,
+                  style: themeProvider.chatCardTextStyle,
                 ),
                 subtitle: Column(
                   crossAxisAlignment: CrossAxisAlignment.start,
@@ -181,6 +181,12 @@ class _ChatUserCardState extends State<ChatUserCard> {
                               : _message!.msg
                           : '',
                       maxLines: 1,
+                      style: themeProvider.chatCardTextStyle.copyWith(
+                        fontSize: 14,
+                        color: themeProvider.isDarkMode
+                            ? Colors.grey
+                            : Colors.black54,
+                      ),
                     ),
                   ],
                 ),

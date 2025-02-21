@@ -2,6 +2,7 @@
 import 'dart:typed_data';
 import 'dart:io';
 import 'package:cipher/api/apis.dart';
+import 'package:cipher/api/theme_provider.dart';
 import 'package:cipher/main.dart';
 import 'package:cipher/models/chat_user.dart';
 import 'package:cipher/screens/auth/login_screen.dart';
