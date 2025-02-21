@@ -186,26 +186,32 @@ class _ChatScreenState extends State<ChatScreen> {
                                 const SizedBox(height: 10),
                                 Text(
                                   widget.user.email,
-                                  style: const TextStyle(
+                                  style: TextStyle(
                                     fontSize: 16,
-                                    color: Colors.grey,
+                                    color: themeProvider.isDarkMode
+                                        ? Colors.white70
+                                        : Colors.grey,
                                   ),
                                 ),
                                 const SizedBox(height: 10),
                                 Text(
                                   widget.user.about,
-                                  style: const TextStyle(
+                                  style: TextStyle(
                                     fontSize: 14,
-                                    color: Colors.black,
+                                    color: themeProvider.isDarkMode
+                                        ? Colors.white
+                                        : Colors.black,
                                   ),
                                   textAlign: TextAlign.center,
                                 ),
                                 const SizedBox(height: 10),
                                 Text(
                                   'Joined: ${MyDateUtil.getFormattedDate(widget.user.createdAt)}',
-                                  style: const TextStyle(
+                                  style: TextStyle(
                                     fontSize: 14,
-                                    color: Colors.black,
+                                    color: themeProvider.isDarkMode
+                                        ? Colors.white
+                                        : Colors.black,
                                   ),
                                 ),
                                 const SizedBox(height: 20),
@@ -218,9 +224,13 @@ class _ChatScreenState extends State<ChatScreen> {
                                   onPressed: () {
                                     Navigator.of(context).pop();
                                   },
-                                  child: const Text(
+                                  child: Text(
                                     'Close',
-                                    style: TextStyle(color: Colors.white),
+                                    style: TextStyle(
+                                      color: themeProvider.isDarkMode
+                                          ? Colors.white
+                                          : Colors.black,
+                                    ),
                                   ),
                                 ),
                               ],
