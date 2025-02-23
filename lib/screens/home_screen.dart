@@ -101,8 +101,8 @@ class _HomeScreenState extends State<HomeScreen> {
   }
 
   void _logout() async {
-    await APIs.updateActiveStatus(false);
     Dialogs.showProgressBar(context);
+    await APIs.updateActiveStatus(false);
     await APIs.auth.signOut().then(
       (value) async {
         await GoogleSignIn().signOut().then((value) {
