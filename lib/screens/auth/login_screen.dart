@@ -60,10 +60,14 @@ class _LoginScreenState extends State<LoginScreen> {
         print('\nUser: ${user.user}');
         print('\nUserAdditionalInfo: ${user.additionalUserInfo}');
         if ((await APIs.userExists())) {
+          // Update online status before navigation
+          await APIs.updateActiveStatus(true);
           Navigator.pushReplacement(
               context, MaterialPageRoute(builder: (_) => const HomeScreen()));
         } else {
-          await APIs.createUser().then((value) {
+          await APIs.createUser().then((value) async {
+            // Update online status before navigation for new users
+            await APIs.updateActiveStatus(true);
             Navigator.pushReplacement(
                 context, MaterialPageRoute(builder: (_) => const HomeScreen()));
           });
