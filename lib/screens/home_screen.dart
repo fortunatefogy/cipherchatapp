@@ -101,6 +101,7 @@ class _HomeScreenState extends State<HomeScreen> {
   }
 
   void _logout() async {
+    await APIs.updateActiveStatus(false);
     Dialogs.showProgressBar(context);
     await APIs.auth.signOut().then(
       (value) async {
