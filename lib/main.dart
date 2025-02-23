@@ -13,7 +13,8 @@ void main() async {
   await dotenv.load();
   WidgetsFlutterBinding.ensureInitialized(); // Ensures proper initialization
   await Firebase.initializeApp(
-      options: DefaultFirebaseOptions.currentPlatform); // Wait for Firebase to initialize
+      options: DefaultFirebaseOptions
+          .currentPlatform); // Wait for Firebase to initialize
   runApp(
     ChangeNotifierProvider(
       create: (_) => ThemeProvider(),
@@ -34,6 +35,11 @@ class _MyAppState extends State<MyApp> with WidgetsBindingObserver {
   void initState() {
     super.initState();
     WidgetsBinding.instance.addObserver(this);
+
+    if (APIs.auth.currentUser != null) {
+      // Ensuring that the status is updated when the app starts
+      APIs.updateActiveStatus(true);
+    }
   }
 
   @override
@@ -50,7 +56,9 @@ class _MyAppState extends State<MyApp> with WidgetsBindingObserver {
       if (state == AppLifecycleState.resumed) {
         // When app is resumed/active
         APIs.updateActiveStatus(true);
-      } else {
+      } else if (state == AppLifecycleState.paused ||
+          state == AppLifecycleState.inactive ||
+          state == AppLifecycleState.detached) {
         // When app is paused/inactive/detached
         APIs.updateActiveStatus(false);
       }
@@ -65,7 +73,7 @@ class _MyAppState extends State<MyApp> with WidgetsBindingObserver {
           debugShowCheckedModeBanner: false,
           title: 'Cipher',
           theme: themeProvider.themeData,
-          home:  SplashScreen(),
+          home: SplashScreen(),
         );
       },
     );
