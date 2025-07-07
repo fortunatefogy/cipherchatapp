@@ -174,6 +174,13 @@ class _HomeScreenState extends State<HomeScreen> {
           title: const Text('Cipher'),
           actions: [
             IconButton(
+              icon: Icon(
+                themeProvider.isDarkMode ? Icons.light_mode : Icons.dark_mode,
+              ),
+              tooltip: themeProvider.isDarkMode ? 'Switch to Light Mode' : 'Switch to Dark Mode',
+              onPressed: () => themeProvider.toggleTheme(),
+            ),
+            IconButton(
               key: _menuKey,
               icon: const Icon(Icons.more_vert),
               onPressed: _showCustomMenu,
@@ -184,7 +191,7 @@ class _HomeScreenState extends State<HomeScreen> {
             ? FloatingActionButton(
                 backgroundColor: themeProvider.isDarkMode
                     ? const Color(0xFF2C2C2C)
-                    : const Color(0xFFF141517),
+                    : const Color(0xFF1976D2),
                 onPressed: _addChatUserDialog,
                 child: const Icon(Icons.add, color: Colors.white),
               )

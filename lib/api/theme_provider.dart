@@ -35,7 +35,7 @@ class ThemeProvider with ChangeNotifier {
   // Light theme
   static final ThemeData lightTheme = ThemeData(
     brightness: Brightness.light,
-    primaryColor: const Color(0xFFF141517),
+    primaryColor: const Color(0xFF1976D2),
     scaffoldBackgroundColor: Colors.white,
     appBarTheme: const AppBarTheme(
       centerTitle: false,
@@ -46,11 +46,11 @@ class ThemeProvider with ChangeNotifier {
         fontWeight: FontWeight.bold,
         fontSize: 28,
       ),
-      backgroundColor: Color(0xFFFFF4F18),
+      backgroundColor: Color(0xFF1976D2),
     ),
     bottomNavigationBarTheme: const BottomNavigationBarThemeData(
       backgroundColor: Color.fromARGB(255, 225, 228, 237),
-      selectedItemColor: Colors.black,
+      selectedItemColor: Color(0xFF1976D2),
       unselectedItemColor: Colors.grey,
     ),
   );
@@ -58,7 +58,7 @@ class ThemeProvider with ChangeNotifier {
   // Dark theme
   static final ThemeData darkTheme = ThemeData(
     brightness: Brightness.dark,
-    primaryColor: const Color(0xFFF141517),
+    primaryColor: const Color(0xFF1976D2),
     scaffoldBackgroundColor: const Color(0xFF1F1F1F),
     appBarTheme: const AppBarTheme(
       centerTitle: false,
@@ -72,8 +72,8 @@ class ThemeProvider with ChangeNotifier {
       backgroundColor: Color(0xFF2C2C2C),
     ),
     bottomNavigationBarTheme: const BottomNavigationBarThemeData(
-      backgroundColor: Color.fromARGB(255, 244, 0, 0),
-      selectedItemColor: Colors.white,
+      backgroundColor: Color(0xFF2C2C2C),
+      selectedItemColor: Color(0xFF64B5F6),
       unselectedItemColor: Colors.grey,
     ),
   );
@@ -86,7 +86,7 @@ class ThemeProvider with ChangeNotifier {
 
   static final TextStyle darkChatCardTextStyle = TextStyle(
     backgroundColor: Colors.transparent,
-    color: const Color.fromARGB(255, 0, 0, 0),
+    color: Colors.white,
     fontSize: 16,
   );
 }
