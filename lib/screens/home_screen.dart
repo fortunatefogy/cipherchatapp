@@ -191,7 +191,7 @@ class _HomeScreenState extends State<HomeScreen> {
             ? FloatingActionButton(
                 backgroundColor: themeProvider.isDarkMode
                     ? const Color(0xFF2C2C2C)
-                    : const Color(0xFF141517),
+                    : const Color(0xFF1976D2),
                 onPressed: _addChatUserDialog,
                 child: const Icon(Icons.add, color: Colors.white),
               )
